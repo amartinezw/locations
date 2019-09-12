@@ -6,6 +6,7 @@ use App\LocationVariation;
 use App\WarehouseLocation;
 use App\Variation;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class LocationVariationRepository extends BaseRepository
@@ -23,7 +24,7 @@ class LocationVariationRepository extends BaseRepository
         	'warehouselocation.warehouse.store:id,name')
         ->paginate($request->per_page);
 
-        return $locationvariations;
+        return ApiResponses::okObject($locationvariations);
     }
 
     public function getItemsInLocation(Request $request)
@@ -31,7 +32,11 @@ class LocationVariationRepository extends BaseRepository
         $warehouselocation = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string,
             'warehouse_id'  => $request->warehouse_id
-        ])->firstOrFail();
+        ])->first();
+
+        if (empty($warehouselocation)) {
+            return ApiResponses::badRequest('La ubicacion no existe.');
+        }
 
     	$locationvariations = LocationVariation::with(
         	'variation:id,name,sku,product_id',
@@ -42,28 +47,38 @@ class LocationVariationRepository extends BaseRepository
     	->where('warehouselocation_id', $warehouselocation->id)
     	->paginate($request->per_page);
 
-        return $locationvariations;
+        return ApiResponses::okObject($locationvariations);
     }
 
     public function locateItem(Request $request)
     {
         $locationVariation = new LocationVariation;
         if (isset($request->warehouselocation_id)) {
+            $warehouselocation = WarehouseLocation::find($request->warehouselocation_id);
+            if (empty($warehouselocation)) {
+                return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+            }
             $locationVariation->warehouselocation_id = $request->warehouselocation_id;
         }
         else if (isset($request->mapped_string) && isset($request->warehouse_id)){
             $warehouselocation = WarehouseLocation::where([
                 'mapped_string' => $request->mapped_string,
                 'warehouse_id'  => $request->warehouse_id
-            ])->firstOrFail();
+            ])->first();
+            if (empty($warehouselocation)) {
+                return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+            }
             $locationVariation->warehouselocation_id = $warehouselocation->id;
         }
 
-        $variation = Variation::where('sku', $request->sku)->firstOrFail();
+        $variation = Variation::where('sku', $request->sku)->first();
+        if (empty($variation)) {
+            return ApiResponses::badRequest('No se encontro el SKU a ubicar.');
+        }
         $locationVariation->variation_id = $variation->id;
         $locationVariation->save();
 
-        return $locationVariation->id;
+        return ApiResponses::okObject($locationVariation);
     }
 
     public function moveItem(Request $request)
@@ -71,24 +86,40 @@ class LocationVariationRepository extends BaseRepository
         $warehouselocation_from = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string_from,
             'warehouse_id'  => $request->warehouse_id_from
-        ])->firstOrFail();
+        ])->first();
 
-        $variation = Variation::where('sku', $request->sku)->firstOrFail();
+        if (empty($warehouselocation_from)) {
+            return ApiResponses::badRequest('No se encontro la ubicacion inicial.');
+        }
+
+        $variation = Variation::where('sku', $request->sku)->first();
+
+        if (empty($variation)) {
+            return ApiResponses::badRequest('No se encontro el SKU a ubicar.');
+        }
 
         $locationVariation = LocationVariation::where([
             'warehouselocation_id' => $warehouselocation_from->id,
             'variation_id' => $variation->id
-        ])->firstOrFail();
+        ])->first();
+
+        if (empty($locationVariation)) {
+            return ApiResponses::badRequest('El item no se encontraba ubicado ahi.');
+        }
 
         $warehouselocation_to = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string_to,
             'warehouse_id'  => $request->warehouse_id_to
-        ])->firstOrFail();
+        ])->first();
+
+        if (empty($warehouselocation_to)) {
+            return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+        }
 
         $locationVariation->warehouselocation_id = $warehouselocation_to->id;
         $locationVariation->save();
 
-        return $locationVariation->warehouselocation_id;
+        return ApiResponses::okObject($locationVariation);
     }
     
 }

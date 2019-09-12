@@ -4,13 +4,16 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\ApiResponses;
 use App\Repositories\LocationVariationRepository;
 
 class LocationVariationController extends Controller
 {
 
+    protected $categoryService;
+
     public function __construct(Request $request)
-    {        
+    {                
         $this->locationVariationRepository = new LocationVariationRepository();
     }
     /**
@@ -42,11 +45,16 @@ class LocationVariationController extends Controller
      */
     public function locateItemScan(Request $request)
     {
+        if (!$request->has('warehouse_id') || !$request->has('sku') || !$request->has('mapped_string')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
         try {
-            return response()->json($this->locationVariationRepository->locateItem($request), 200);
+            $respuesta = $this->locationVariationRepository->locateItem($request);
+            return $respuesta;
 
         } catch (\Exception $e) {
-            return responder()->error('locate_item_error', $e)->respond();                        
+            return ApiResponses::internalServerError();                        
         }  
     }
     /**
@@ -57,11 +65,15 @@ class LocationVariationController extends Controller
      */
     public function locateItemWeb(Request $request)
     {
+        if (!$request->has('warehouse_id') || !$request->has('sku') || !$request->has('mapped_string')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
         try {
-            return response()->json($this->locationVariationRepository->locateItem($request), 200);
+            return $this->locationVariationRepository->locateItem($request);
 
         } catch (\Exception $e) {
-            return responder()->error('locate_item_error', $e)->respond();                        
+            return ApiResponses::internalServerError();
         }  
     }
 
@@ -73,11 +85,15 @@ class LocationVariationController extends Controller
      */
     public function moveItemScan(Request $request)
     {
+        if (!$request->has('warehouse_id_to') || !$request->has('warehouse_id_from') || !$request->has('mapped_string_to') || !$request->has('mapped_string_from') || !$request->has('sku')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
         try {
-            return response()->json($this->locationVariationRepository->moveItem($request), 200);
+            return $this->locationVariationRepository->moveItem($request);
 
         } catch (\Exception $e) {
-            return responder()->error('locate_item_error', $e)->respond();                        
+            return ApiResponses::internalServerError();                   
         }  
     }
 
@@ -89,11 +105,15 @@ class LocationVariationController extends Controller
      */
     public function moveItemWeb(Request $request)
     {
+        if (!$request->has('warehouse_id_to') || !$request->has('warehouse_id_from') || !$request->has('mapped_string_to') || !$request->has('mapped_string_from') || !$request->has('sku')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
         try {
-            return response()->json($this->locationVariationRepository->moveItem($request), 200);
+            return $this->locationVariationRepository->moveItem($request);
 
         } catch (\Exception $e) {
-            return responder()->error('locate_item_error', $e)->respond();                        
+            return ApiResponses::internalServerError();                     
         }  
     }
 
@@ -106,10 +126,10 @@ class LocationVariationController extends Controller
     public function getall(Request $request)
     {
         try {
-            return response()->json($this->locationVariationRepository->getall($request), 200);
+            return $this->locationVariationRepository->getall($request);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_warehouse_error', $e)->respond();                        
+            return ApiResponses::internalServerError();
         }                      
     }
 
@@ -121,11 +141,15 @@ class LocationVariationController extends Controller
      */
     public function getItemsInLocation(Request $request)
     {
+        if (!$request->has('warehouse_id') || !$request->has('mapped_string')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
         try {
-            return response()->json($this->locationVariationRepository->getItemsInLocation($request), 200);
+            return $this->locationVariationRepository->getItemsInLocation($request);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_warehouse_error', $e)->respond();                        
+            return ApiResponses::internalServerError();
         }                      
     }
 

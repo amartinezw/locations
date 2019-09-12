@@ -47,10 +47,10 @@ class WarehouseLocationController extends Controller
     public function getall(Request $request)
     {
         try {
-            return response()->json($this->warehouseLocationRepository->getlocations($request), 200);
+            return $this->warehouseLocationRepository->getlocations($request);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_locations_error', $e)->respond();                        
+            return ApiResponses::internalServerError();
         }                      
     }
 
@@ -62,10 +62,10 @@ class WarehouseLocationController extends Controller
     public function getblocks(Request $request)
     {
         try {
-            return response()->json($this->warehouseLocationRepository->getblocks($request), 200);
+            return $this->warehouseLocationRepository->getblocks($request);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_blocks_error', $e)->respond();                        
+            return ApiResponses::internalServerError();                      
         }                      
     }
 
@@ -78,10 +78,10 @@ class WarehouseLocationController extends Controller
     public function getracks(Request $request)
     {
         try {
-            return response()->json($this->warehouseLocationRepository->getracks($request), 200);
+            return $this->warehouseLocationRepository->getracks($request);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_rack_list_error', $e)->respond();                        
+            return ApiResponses::internalServerError();
         }                      
     }
 
@@ -97,7 +97,7 @@ class WarehouseLocationController extends Controller
         if ($v->fails()) {
             return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();                        
         }
-        $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides);
+        return $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides);
     }
 
     /**
