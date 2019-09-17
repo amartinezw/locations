@@ -7,6 +7,8 @@ use App\Warehouse;
 use App\Repositories\WarehouseRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Validator;
+
 
 class WarehouseController extends Controller
 {
@@ -33,7 +35,11 @@ class WarehouseController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $v = Validator::make($request->all(), $this->warehouseRepository->getRules());
+        if ($v->fails()) {
+            return ApiResponses::badRequest();                        
+        }
+        return $this->warehouseRepository->create(['name' => $request->name, 'store_id' => $request->store_id]);
     }
 
     /**

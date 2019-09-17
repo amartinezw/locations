@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Warehouse;
 use App\WarehouseLocation;
+use App\Http\Controllers\ApiResponses;
 use App\Repositories\WarehouseLocationRepository;
 
 use Illuminate\Http\Request;
