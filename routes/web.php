@@ -34,6 +34,7 @@ $router->group([
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
 
+    $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');
     $router->post('locationvariation/locateitemscan', 'LocationVariationController@locateItemScan');
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
