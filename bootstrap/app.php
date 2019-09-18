@@ -29,6 +29,8 @@ $app->configure('auth');
 
 $app->configure('apidoc');
 
+$app->configure('phpunit');
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
@@ -64,6 +66,9 @@ $app->singleton(
 // $app->middleware([
 //     App\Http\Middleware\ExampleMiddleware::class
 // ]);
+$app->middleware([
+    App\Http\Middleware\CorsMiddleware::class
+ ]);
 
 // $app->routeMiddleware([
 //     'auth' => App\Http\Middleware\Authenticate::class,
@@ -84,6 +89,7 @@ $app->routeMiddleware([
 | totally optional, so you are not required to uncomment this line.
 |
 */
+
 
 // $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
