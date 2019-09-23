@@ -10,7 +10,7 @@ class StoreController extends Controller
 {
 
     public function __construct(Request $request)
-    {        
+    {
         $this->storeRepository = new StoreRepository();
     }
     /**
@@ -45,8 +45,8 @@ class StoreController extends Controller
             return response()->json($this->storeRepository->getAll($request), 200);
 
         } catch (\Exception $e) {
-            return responder()->error('fetch_stores_error', $e)->respond();                        
-        }                      
+            return responder()->error('fetch_stores_error', $e)->respond();
+        }
     }
 
     /**
@@ -70,6 +70,7 @@ class StoreController extends Controller
     public function update(Request $request, $id)
     {
         //
+        return "updated";
     }
 
     /**
