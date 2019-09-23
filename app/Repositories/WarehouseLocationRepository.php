@@ -29,7 +29,7 @@ class WarehouseLocationRepository extends BaseRepository
         for ($l=1; $l <= $levels; $l++) { 
             for ($b=1; $b <= $blocks; $b++) { 
                 $warehouseLocation = new WarehouseLocation;
-                $warehouseLocation->warehouse_id = $warehouse;
+                $warehouseLocation->warehouse_id = $warehouse_id;
                 $warehouseLocation->block = $b;
                 $warehouseLocation->level = $l;
                 $warehouseLocation->rack = $newRack;
@@ -38,7 +38,7 @@ class WarehouseLocationRepository extends BaseRepository
                 $warehouseLocation->save();
                 if ($sides == 2) {
                     $warehouseLocation = new WarehouseLocation;
-                    $warehouseLocation->warehouse_id = $warehouse;
+                    $warehouseLocation->warehouse_id = $warehouse_id;
                     $warehouseLocation->block = $b;
                     $warehouseLocation->level = $l;
                     $warehouseLocation->rack = $newRack;              
@@ -49,7 +49,7 @@ class WarehouseLocationRepository extends BaseRepository
             }
         }
 
-     	return true;
+     	return ApiResponses::created();
     }
 
 
