@@ -32,22 +32,21 @@ class LocationVariationRepository extends BaseRepository
         $warehouselocation = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string,
             'warehouse_id'  => $request->warehouse_id
-        ])->first();
+        ])->first()->toArray();
 
         if (empty($warehouselocation)) {
             return ApiResponses::badRequest('La ubicacion no existe.');
         }
-
     	$locationvariations = LocationVariation::with(
         	'variation:id,name,sku,product_id',
         	'variation.product:id,name',
-        	'variation.product.images',
-        	'warehouselocation:id,mapped_string,warehouse_id'
+        	'variation.product.images'
         )
-    	->where('warehouselocation_id', $warehouselocation->id)
-    	->paginate($request->per_page);
+    	->where('warehouselocation_id', $warehouselocation['id'])
+    	->paginate($request->per_page)->toArray();
+        $responseArray = array_merge($warehouselocation, $locationvariations);
 
-        return ApiResponses::okObject($locationvariations);
+        return ApiResponses::okObject($responseArray);
     }
 
     public function locateItem(Request $request)

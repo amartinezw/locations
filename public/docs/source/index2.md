@@ -15,9 +15,15 @@ toc_footers:
 <!-- START_INFO -->
 # Info
 
-Welcome to the generated API reference.
-[Get Postman Collection](http://localhost/docs/collection.json)
+> Client id: 1 
 
+> Client secret: doJ0zQ1gmhP33BZ9paJZJksZxR5SICYj4NIQGraV
+
+> Access Token example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFiNjM2MWE2MDkzYjRiNzMwZWYxMTY1YzIxODA1ZmYxYWFjNWZhN2JlMjRlMzliZGQ2Yjk2NTA1OTcxZDZjMDgxNjE3Y2Y2YzBlYjUwMWRhIn0.eyJhdWQiOiIxIiwianRpIjoiMWI2MzYxYTYwOTNiNGI3MzBlZjExNjVjMjE4MDVmZjFhYWM1ZmE3YmUyNGUzOWJkZDZiOTY1MDU5NzFkNmMwODE2MTdjZjZjMGViNTAxZGEiLCJpYXQiOjE1NjgwNTAwMDEsIm5iZiI6MTU2ODA1MDAwMSwiZXhwIjoxNTk5NjcyNDAxLCJzdWIiOiIiLCJzY29wZXMiOltdfQ.I-zsnSQ7kvBgwYos9vcvsjsZoRubdhtyxLlSGXhIfO5FVD0qBf2OuxpTrTFaCzZuSt0xaZjBNbRxKC8YfZou4wY0HTFsquz7nfRTBSnyG1O1oI1RkJq3H9MHNdZSASyxd90SzD-hUN_erkQGV2Zx3QJcwBWbBrVrtuxP-VpeeHh2g3X9PnG5GnR5i7mkhFbPSVI6gYQvgbRvXcEMCGHt2ifKYC3cAr43cHUrNDQphYEesD9AxRgdruikVBQ3ZKFSi1Ax80Kr-iPrgaOIQMc17mQZK18x3jfsNNpFgQMWzcaUvJdF60G-DemLQHmnj3CEjSQt42vtwupHMsABGji_HFC0u26F1yuh2FcX1iVQ59UJ2bajYiWuudJt8PawVv0E2OZlb2AWJHa2Hpmt6ZX_TBYMRbuIWdRAU0UOUC5vbsf6tl4dwjAwig36LllWDNGaGZozK4DCyepOHpml35vBn1C9ju5KBKmZygGcULgPN7ehuxMCos8vRleHGx2qaXAZUiwPT55DLI_XjTqQe1R-qxDxqAWws6at0CnM4hiMj5VEl9ptvhzYpVJbd9ytlMV4rVS3woFdAz4APFopHx-nGtno5bbJCheL0NwkLD9JldR--MuZscx2NRhvdiqAkinryqQo3eaBqblTLT9J8z_U4kwwph-X5r_4dNngy1SlUYQ
+
+Agregar en los headers de cada request 
+
+"Authorization" : 'Bearer ' + clientToken
 <!-- END_INFO -->
 
 #general
@@ -60,6 +66,7 @@ null
 
 Obtiene todas las ubicaciones de todas las bodegas
 <!-- END_30f6439aadb9bb2fecbba2f85ace6cb8 -->
+
 <!-- START_411c0de0e86583bcccfb9ccfb4fd376f -->
 ## /warehouselocations/getracks
 
@@ -123,6 +130,7 @@ fetch(url, {
 
 Obtiene la lista de racks de determinada bodega
 <!-- END_411c0de0e86583bcccfb9ccfb4fd376f -->
+
 <!-- START_c0e3b739cb2591c076db77575b773ae7 -->
 ## /warehouselocations/getblocks
 
@@ -180,6 +188,7 @@ fetch(url, {
 
 Obtiene todos los bloques de determinada bodega y determinado rack.
 <!-- END_c0e3b739cb2591c076db77575b773ae7 -->
+
 <!-- START_88b6fb6afa695825f2751a803791653b -->
 ## /warehouselocations/getall
 
@@ -247,6 +256,7 @@ fetch(url, {
 
 Obtiene las ubicaciones de una bodega.
 <!-- END_88b6fb6afa695825f2751a803791653b -->
+
 <!-- START_e8c7529678b88c98b14609d860bab431 -->
 ## /locationvariation/getall
 
@@ -354,6 +364,7 @@ fetch(url, {
 Obtiene todas las posiciones de todos los items con sus detalles.
 
 <!-- END_e8c7529678b88c98b14609d860bab431 -->
+
 <!-- START_6535521a9edba040fd8ddc11f6c03c7e -->
 ## /locationvariation/getitemsinlocation
 
@@ -457,6 +468,7 @@ fetch(url, {
 Obtiene los items posicionados en determinada ubicacion.
 
 <!-- END_6535521a9edba040fd8ddc11f6c03c7e -->
+
 <!-- START_b96feadb8f9229dfd6196e44954067d1 -->
 ## /warehouses/store
 
@@ -489,71 +501,6 @@ fetch(url, {
 
 Crea una bodega con el nombre y el identificador de tienda a la que pertenece.
 <!-- END_b96feadb8f9229dfd6196e44954067d1 -->
-<!-- START_0bfd5dbd84e9d1da981db2a673e3c53f -->
-## Update the specified resource in storage.
-
-> Example request:
-
-```bash
-curl -X POST "/api/v1/warehouses/update" 
-```
-
-```javascript
-const url = new URL("/api/v1/warehouses/update?warehouse_id=1&name=bodega1&store_id=1");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "POST",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`POST /api/v1/warehouses/update`
-
-
-<!-- END_0bfd5dbd84e9d1da981db2a673e3c53f -->
-
-<!-- START_00df109a0bc0e3793507054431d3f012 -->
-## Remove the specified resource from storage.
-
-> Example request:
-
-```bash
-curl -X POST "/api/v1/warehouses/destroy" 
-```
-
-```javascript
-const url = new URL("/api/v1/warehouses/destroy?warehouse_id=1");
-
-let headers = {
-    "Accept": "application/json",
-    "Content-Type": "application/json",
-}
-
-fetch(url, {
-    method: "POST",
-    headers: headers,
-})
-    .then(response => response.json())
-    .then(json => console.log(json));
-```
-
-
-
-### HTTP Request
-`POST /api/v1/warehouses/destroy`
-
-
-<!-- END_00df109a0bc0e3793507054431d3f012 -->
 
 <!-- START_07e4dafef70ffd2ec75eb8cf2253e5b9 -->
 ## /warehouselocations/maplocations
@@ -588,6 +535,7 @@ fetch(url, {
 Mapea ubicaciones (crea un nuevo rack) en la bodega y con las propiedades declaradas.
 
 <!-- END_07e4dafef70ffd2ec75eb8cf2253e5b9 -->
+
 <!-- START_9adc1c75574cb4ca031eb54b75d0ee28 -->
 ## /locationvariation/locateitemscan
 
@@ -620,6 +568,7 @@ fetch(url, {
 
 Posiciona el item en la ubicacion determinada utilizando scanner.
 <!-- END_9adc1c75574cb4ca031eb54b75d0ee28 -->
+
 <!-- START_c93a7b2f6b31220f030c3ac2f45968c3 -->
 ## /locationvariation/moveitemscan
 
@@ -652,6 +601,7 @@ fetch(url, {
 
 Mueve el item de la ubicacion FROM a la ubicacion TO 
 <!-- END_c93a7b2f6b31220f030c3ac2f45968c3 -->
+
 <!-- START_6ff4980ddbaa6b169ce2b6550a730c0e -->
 ## Ubica el item en la determinada ubicacion utilizando la web.
 
