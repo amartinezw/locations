@@ -54,7 +54,7 @@ class LocationVariationController extends Controller
             return $respuesta;
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();                        
+            return ApiResponses::internalServerError($e);                        
         }  
     }
     /**
