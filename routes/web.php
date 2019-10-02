@@ -33,7 +33,6 @@ $router->group([
     $router->get('warehouselocations/getall', 'WarehouseLocationController@getall');
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
-    $router->get('user/authenticate', 'UserApiController@login');
     $router->get('user/getusers', 'UserApiController@index');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
@@ -44,4 +43,5 @@ $router->group([
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
     $router->post('locationvariation/locateitemweb', 'LocationVariationController@locateItemWeb');
     $router->post('locationvariation/moveitemweb', 'LocationVariationController@moveItemWeb');
+    $router->post('user/authenticate', 'UserApiController@login');
 });
