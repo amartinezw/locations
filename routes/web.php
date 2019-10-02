@@ -33,6 +33,8 @@ $router->group([
     $router->get('warehouselocations/getall', 'WarehouseLocationController@getall');
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
+    $router->get('user/authenticate', 'UserApiController@login');
+    $router->get('user/getusers', 'UserApiController@index');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');

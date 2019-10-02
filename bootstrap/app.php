@@ -30,6 +30,7 @@ $app->configure('auth');
 $app->configure('apidoc');
 
 $app->configure('phpunit');
+$app->configure('session');
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +53,11 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
+$app->singleton('cookie', function () use ($app) {
+    return $app->loadComponent('session', 'Illuminate\Cookie\CookieServiceProvider', 'cookie');
+});
+
+$app->bind('Illuminate\Contracts\Cookie\QueueingFactory', 'cookie');
 /*
 |--------------------------------------------------------------------------
 | Register Middleware
@@ -79,6 +85,9 @@ $app->routeMiddleware([
     'client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
 ]);
 
+$app->middleware([
+    'Illuminate\Session\Middleware\StartSession'
+]);
 /*
 |--------------------------------------------------------------------------
 | Register Service Providers
@@ -90,13 +99,16 @@ $app->routeMiddleware([
 |
 */
 
-
+$app->bind(Illuminate\Session\SessionManager::class, function ($app) {
+    return $app->make('session');
+});
 // $app->register(App\Providers\AppServiceProvider::class);
 $app->register(App\Providers\AuthServiceProvider::class);
 $app->register(Flugg\Responder\ResponderServiceProvider::class);
 // $app->register(App\Providers\EventServiceProvider::class);
 $app->register(\App\Providers\Passport\LumenPassportServiceProvider::class);
 $app->register(\Mpociot\ApiDoc\ApiDocGeneratorServiceProvider::class);
+$app->register(Illuminate\Session\SessionServiceProvider::class);
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
