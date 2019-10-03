@@ -88,14 +88,14 @@ class UserApiController extends Controller
                     'status' => 'success',
                     'code' => 200,
                     'user' => $user,
-                ]);
+                ])->setStatusCode(200);
             }
             else {
                 return response()->json([
                     'status' => 'error',
-                    'code' => 500,
+                    'code' => 404,
                     'message' => 'Usuario o contraseña no encontrados',
-                ]);
+                ])->setStatusCode(404);
             }
 
         } catch (\Exception $e) {
@@ -105,7 +105,7 @@ class UserApiController extends Controller
                 'code' => 500,
                 'type' => 'Usuario',
                 'message' => 'Error al obtener el recurso: '.$e->getMessage(),
-            ]);
+            ])->setStatusCode(500);
         }
     }
 
