@@ -78,6 +78,26 @@ class LocationVariationController extends Controller
     }
 
     /**
+     * Quita el item de la ubicacion determinada.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function removeItemFromLocation(Request $request)
+    {
+        if (!$request->has('sku') || !$request->has('warehouselocation_id')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
+        try {
+            return $this->locationVariationRepository->removeItemFromLocation($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError();
+        }  
+    }
+
+    /**
      * Mueve el item de ubicacion utilizando scanner.
      *
      * @param  \Illuminate\Http\Request  $request

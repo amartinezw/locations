@@ -35,7 +35,7 @@ class LocationVariationRepository extends BaseRepository
         ])->first()->toArray();
 
         if (empty($warehouselocation)) {
-            return ApiResponses::badRequest('La ubicacion no existe.');
+            return ApiResponses::notFound('La ubicacion no existe.');
         }
     	$locationvariations = LocationVariation::with(
         	'variation:id,name,sku,product_id',
@@ -55,7 +55,7 @@ class LocationVariationRepository extends BaseRepository
         if (isset($request->warehouselocation_id)) {
             $warehouselocation = WarehouseLocation::find($request->warehouselocation_id);
             if (empty($warehouselocation)) {
-                return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+                return ApiResponses::notFound('No se encontro la ubicacion destino.');
             }
             $locationVariation->warehouselocation_id = $request->warehouselocation_id;
         }
@@ -65,19 +65,38 @@ class LocationVariationRepository extends BaseRepository
                 'warehouse_id'  => $request->warehouse_id
             ])->first();
             if (empty($warehouselocation)) {
-                return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+                return ApiResponses::notFound('No se encontro la ubicacion destino.');
             }
             $locationVariation->warehouselocation_id = $warehouselocation->id;
         }
 
         $variation = Variation::where('sku', $request->sku)->first();
         if (empty($variation)) {
-            return ApiResponses::badRequest('No se encontro el SKU a ubicar.');
+            return ApiResponses::notFound('No se encontro el SKU a ubicar.');
         }
         $locationVariation->variation_id = $variation->id;
         $locationVariation->save();
 
         return ApiResponses::okObject($locationVariation);
+    }
+
+    public function removeItemFromLocation(Request $request)
+    {
+        $variation = Variation::where('sku', $request->sku)->first();
+        if (empty($variation)) {
+            return ApiResponses::notFound('No se encontro el SKU a remover de ubicacion.');
+        }
+        $locationVariation = LocationVariation::where([
+            'warehouselocation_id' => $request->warehouselocation_id,
+            'variation_id'         => $variation->id
+        ])->first();
+        
+        if (empty($locationVariation)) {
+            return ApiResponses::notFound('El producto a eliminar no se encontro en la ubicacion.');
+        } else {
+            $locationVariation->delete();
+            return ApiResponses::ok();
+        }
     }
 
     public function moveItem(Request $request)
@@ -88,13 +107,13 @@ class LocationVariationRepository extends BaseRepository
         ])->first();
 
         if (empty($warehouselocation_from)) {
-            return ApiResponses::badRequest('No se encontro la ubicacion inicial.');
+            return ApiResponses::notFound('No se encontro la ubicacion inicial.');
         }
 
         $variation = Variation::where('sku', $request->sku)->first();
 
         if (empty($variation)) {
-            return ApiResponses::badRequest('No se encontro el SKU a ubicar.');
+            return ApiResponses::notFound('No se encontro el SKU a ubicar.');
         }
 
         $locationVariation = LocationVariation::where([
@@ -103,7 +122,7 @@ class LocationVariationRepository extends BaseRepository
         ])->first();
 
         if (empty($locationVariation)) {
-            return ApiResponses::badRequest('El item no se encontraba ubicado ahi.');
+            return ApiResponses::notFound('El item no se encontraba ubicado ahi.');
         }
 
         $warehouselocation_to = WarehouseLocation::where([
@@ -112,7 +131,7 @@ class LocationVariationRepository extends BaseRepository
         ])->first();
 
         if (empty($warehouselocation_to)) {
-            return ApiResponses::badRequest('No se encontro la ubicacion destino.');
+            return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
 
         $locationVariation->warehouselocation_id = $warehouselocation_to->id;

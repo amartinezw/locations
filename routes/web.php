@@ -43,5 +43,6 @@ $router->group([
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
     $router->post('locationvariation/locateitemweb', 'LocationVariationController@locateItemWeb');
     $router->post('locationvariation/moveitemweb', 'LocationVariationController@moveItemWeb');
+    $router->post('locationvariation/removeitemfromlocation', 'LocationVariationController@removeItemFromLocation');
     $router->post('user/authenticate', 'UserApiController@login');
 });
