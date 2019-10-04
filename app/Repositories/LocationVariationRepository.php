@@ -76,8 +76,12 @@ class LocationVariationRepository extends BaseRepository
         }
         $locationVariation->variation_id = $variation->id;
         $locationVariation->save();
-
-        return ApiResponses::okObject($locationVariation);
+        $responseArray = LocationVariation::with(
+            'variation:id,name,sku,product_id',
+            'variation.product:id,name',
+            'variation.product.images'
+        )->where('id', $locationVariation->id)->get();
+        return ApiResponses::okObject($responseArray);
     }
 
     public function removeItemFromLocation(Request $request)
