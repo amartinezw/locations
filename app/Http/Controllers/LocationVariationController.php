@@ -149,7 +149,7 @@ class LocationVariationController extends Controller
             return $this->locationVariationRepository->getall($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
+            return ApiResponses::internalServerError($e);
         }                      
     }
 

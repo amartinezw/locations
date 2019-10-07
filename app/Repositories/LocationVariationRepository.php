@@ -8,6 +8,7 @@ use App\Variation;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use DB;
 
 class LocationVariationRepository extends BaseRepository
 {
@@ -15,14 +16,36 @@ class LocationVariationRepository extends BaseRepository
     
     public function getall(Request $request)
     {        
-        $locationvariations = LocationVariation::with(
-        	'variation:id,name,sku,product_id',
-        	'variation.product:id,name',
-        	'variation.product.images',
-        	'warehouselocation:id,mapped_string,warehouse_id',
-        	'warehouselocation.warehouse:id,name,store_id',
-        	'warehouselocation.warehouse.store:id,name')
-        ->paginate($request->per_page);
+         $where = [];
+        if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('department')) {
+            if ($request->has('name')) {
+                $where[] = ['products.name', 'LIKE', '%'.$request->name.'%'];
+            }
+            if ($request->has('sku')) {
+                $where[] = ['variations.sku', '=', $request->sku];
+            }
+            if ($request->has('active')) {
+                $where[] = ['products.activation_disabled', '=', $request->active];
+            }
+            if ($request->has('department')) {
+                $where[] = ['products.department', '=', $request->department];
+            }
+        }
+        $locationvariations = DB::table('variations')
+                            ->distinct()
+                            ->leftJoin('products', 'product_id', '=', 'products.id')                            
+                            ->rightJoin('location_variations', 'variations.id', '=', 'location_variations.variation_id')
+                            ->select('products.id as product_id', 
+                                    'variations.id as variation_id', 
+                                    'variations.sku', 
+                                    'variations.name as variation', 
+                                    DB::raw('count(variations.id) as stock'), 
+                                    'products.name as product', 
+                                    'products.department as department', 
+                                    DB::raw('(SELECT images.file FROM images WHERE products.id = images.product_id limit 1) as image'))
+                            ->where($where)
+                            ->groupBy('products.id', 'products.name', 'products.department', 'variations.id', 'variations.sku', 'variations.name')
+                            ->paginate($request->per_page ?: 20 )->toArray();
 
         return ApiResponses::okObject($locationvariations);
     }
