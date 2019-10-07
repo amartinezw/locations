@@ -47,5 +47,5 @@ $router->group([
     $router->post('locationvariation/removeitemfromlocation', 'LocationVariationController@removeItemFromLocation');
     $router->post('user/authenticate', 'UserApiController@login');
     $router->post('user/create', 'UserApiController@store');
-    $router->post('user/update', 'UserApiController@update');
+    $router->post('user/update/{id}', 'UserApiController@update');
 });
