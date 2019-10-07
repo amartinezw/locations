@@ -34,6 +34,7 @@ $router->group([
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
     $router->get('user/getusers', 'UserApiController@index');
+    $router->get('user/delete/{id}', 'UserApiController@delete');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');
@@ -45,4 +46,6 @@ $router->group([
     $router->post('locationvariation/moveitemweb', 'LocationVariationController@moveItemWeb');
     $router->post('locationvariation/removeitemfromlocation', 'LocationVariationController@removeItemFromLocation');
     $router->post('user/authenticate', 'UserApiController@login');
+    $router->post('user/create', 'UserApiController@store');
+    $router->post('user/update', 'UserApiController@update');
 });
