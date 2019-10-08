@@ -72,6 +72,22 @@ class LocationVariationRepository extends BaseRepository
         return ApiResponses::okObject($responseArray);
     }
 
+    public function getLocationsOfItem(Request $request)
+    {        
+        $locationvariations = LocationVariation::with('warehouselocation')
+        ->whereHas('variation', function($q) use ($request) {
+            $q->where('sku', $request->sku);
+        })->get();        
+
+        $locations = [];
+
+        foreach ($locationvariations as $k => $v) {
+            $locations[] = $v->warehouselocation->mapped_string;
+        }
+
+        return ApiResponses::okObject($locations);
+    }    
+
     public function locateItem(Request $request)
     {
         $locationVariation = new LocationVariation;

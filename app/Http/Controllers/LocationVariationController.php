@@ -38,6 +38,22 @@ class LocationVariationController extends Controller
     }
 
     /**
+     * Obtiene la(s) ubicacion(es) de un producto
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getLocationsOfItem(Request $request)
+    {
+        try {
+            return $this->locationVariationRepository->getLocationsOfItem($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }  
+    }
+
+    /**
      * Ubica el item en la determinada ubicacion utilizando scanner.
      *
      * @param  \Illuminate\Http\Request  $request
