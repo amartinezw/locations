@@ -117,18 +117,18 @@ class UserApiController extends Controller
     public function store(Request $oRequest)
     {
         try {
-
             $oValidator = Validator::make($oRequest->all(), [
                 'name' => 'required|min:3',
                 'email' => 'required|unique:users,email|email',
+                'password' => 'required|min:5',
                 'address' => 'required'
             ]);
             if ($oValidator->fails()) {
                 return response()->json([
                     'status' => 'error',
-                    'code' => 500,
-                    'message' => 'Validacion fallida',
-                ])->setStatusCode(500);
+                    'code' => 422,
+                    'message' => 'Validacion fallida '. $oValidator->errors(),
+                ])->setStatusCode(422);
             }
 
             // Crea usuario
