@@ -74,16 +74,20 @@ class LocationVariationRepository extends BaseRepository
 
     public function getLocationsOfItem(Request $request)
     {        
+        $variation = Variation::where('sku', $request->sku)->first();
         $locationvariations = LocationVariation::with('warehouselocation')
-        ->whereHas('variation', function($q) use ($request) {
-            $q->where('sku', $request->sku);
-        })->get();        
+        ->whereHas('variation', function($q) use ($request, $variation) {
+            $q->where('product_id', $variation->product_id);
+        })
+        ->orderBy('warehouselocation_id', 'asc')->get();        
 
         $locations = [];
 
         foreach ($locationvariations as $k => $v) {
             $locations[] = $v->warehouselocation->mapped_string;
         }
+
+        $locations = array_values(array_unique($locations));
 
         return ApiResponses::okObject($locations);
     }    
