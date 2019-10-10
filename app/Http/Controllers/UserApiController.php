@@ -48,8 +48,10 @@ class UserApiController extends Controller
                         }
                     }
                 )
+                ->with('roles')
                 ->orderBy($oRequest->input('order', 'id'), $oRequest->input('sort', 'asc'))
                 ->paginate((int) $oRequest->input('per_page', 25));
+
 
             // Envía datos paginados
             return response()->json($aUsuarios);
@@ -132,13 +134,15 @@ class UserApiController extends Controller
             }
 
             // Crea usuario
-            $this->mUser->create([
+            $usuario = $this->mUser->create([
                 'name' => $oRequest->name,
                 'email' => $oRequest->email,
                 'address' => $oRequest->address,
                 'email_verified_at' => Carbon::now()->format('Y-m-d H:i'),
                 'password' => app('hash')->make($oRequest->password)
             ]);
+
+            $usuario->assignRole('administrador');
 
             return response()->json([
                 'status' => 'success',
@@ -164,7 +168,6 @@ class UserApiController extends Controller
     public function update(Request $oRequest, $id)
     {
         try {
-
             $oValidator = Validator::make($oRequest->all(), [
                 'id' => 'required|numeric'
             ]);
@@ -172,15 +175,19 @@ class UserApiController extends Controller
                 return response()->json([
                     'status' => 'error',
                     'code' => 500,
-                    'message' => 'Validacion fallida',
+                    'message' => 'Validacion fallida '.$oValidator->errors(),
                 ])->setStatusCode(500);
             }
 
             //Busca usuario
             $usuario = $this->mUser->find($id);
+            if(count($usuario->roles) > 0) {
+                $usuario->removeRole($usuario->roles[0]->name);
+            }
             $usuario->name = $oRequest->name;
             $usuario->email = $oRequest->email;
             $usuario->address = $oRequest->address;
+            $usuario->assignRole($oRequest->roles[0]['name']);
             $usuario->update();
 
             return response()->json([

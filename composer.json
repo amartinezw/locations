@@ -10,7 +10,8 @@
         "illuminate/session": "^5.8",
         "laravel/lumen-framework": "5.8.*",
         "laravel/passport": "^7.4",
-        "mpociot/laravel-apidoc-generator": "^3.17"
+        "mpociot/laravel-apidoc-generator": "^3.17",
+        "spatie/laravel-permission": "^2.38"
     },
     "require-dev": {
         "fzaninotto/faker": "^1.4",
