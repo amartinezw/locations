@@ -56,19 +56,27 @@ class LocationVariationRepository extends BaseRepository
         $warehouselocation = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string,
             'warehouse_id'  => $request->warehouse_id
-        ])->first()->toArray();
+        ])->first();
 
         if (empty($warehouselocation)) {
-            return ApiResponses::notFound('La ubicacion no existe.');
+            return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
-    	$locationvariations = LocationVariation::with(
-        	'variation:id,name,sku,product_id',
-        	'variation.product:id,name',
-        	'variation.product.firstimg'
-        )
-    	->where('warehouselocation_id', $warehouselocation['id'])
-    	->paginate($request->per_page)->toArray();
-        $responseArray = array_merge($warehouselocation, $locationvariations);
+     
+        $responseArray = Product::with(
+            ['variations:id,product_id,name,sku', 
+             'images' => function($q) {
+                 $q->select('id','file', 'product_id')->groupBy('product_id');
+             },
+             'locations' => function($q) {
+                $q->select('id','product_id','warehouselocation_id')->groupBy('product_id');                    
+             },
+             'locations.warehouselocation:id,mapped_string'])
+        ->select('id','name','internal_reference')
+        ->whereHas('locations', function($q) use ($warehouselocation) {
+            $q->where('warehouselocation_id', $warehouselocation->id);
+        })->paginate($request->per_page ?: 20)->toArray();
+
+        $responseArray = array_merge($responseArray, ['mapped_string' => $request->mapped_string]);
 
         return ApiResponses::okObject($responseArray);
     }
