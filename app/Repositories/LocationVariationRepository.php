@@ -158,8 +158,8 @@ class LocationVariationRepository extends BaseRepository
 
         $lvCollection = [];
 
-        if (empty($locationVariation)) {
-            if ($request->has('withSiblings')) {
+        if (empty($locationVariation)) {            
+            if ($request->withSiblings == 'related') {
                 $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
                 foreach ($variationSiblings as $key => $vs) {
                     $lvExists = LocationVariation::where([
@@ -172,7 +172,7 @@ class LocationVariationRepository extends BaseRepository
                         $lv->variation_id = $vs->id;
                         $lv->product_id = $vs->product_id;
                         $lv->save();
-                        $lvCollection[] = $lv->id;                                             
+                        $lvCollection[] = $lv->id;
                     }
                 }
             }
