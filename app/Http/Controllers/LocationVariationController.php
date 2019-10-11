@@ -38,7 +38,7 @@ class LocationVariationController extends Controller
     }
 
     /**
-     * Obtiene la(s) ubicacion(es) de un producto
+     * Obtiene la(s) ubicacion(es) de un sku
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -47,6 +47,22 @@ class LocationVariationController extends Controller
     {
         try {
             return $this->locationVariationRepository->getLocationsOfItem($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }  
+    }
+
+    /**
+     * Obtiene la(s) ubicacion(es) de un producto
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getLocationsOfProduct(Request $request)
+    {
+        try {
+            return $this->locationVariationRepository->getLocationsOfProduct($request);
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
