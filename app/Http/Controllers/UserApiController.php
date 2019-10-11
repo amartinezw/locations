@@ -119,6 +119,7 @@ class UserApiController extends Controller
     public function store(Request $oRequest)
     {
         try {
+
             $oValidator = Validator::make($oRequest->all(), [
                 'name' => 'required|min:3',
                 'email' => 'required|unique:users,email|email',
@@ -142,7 +143,7 @@ class UserApiController extends Controller
                 'password' => app('hash')->make($oRequest->password)
             ]);
 
-            $usuario->assignRole('administrador');
+            $usuario->assignRole($oRequest->rol);
 
             return response()->json([
                 'status' => 'success',
