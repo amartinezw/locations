@@ -280,71 +280,29 @@ fetch(url, {
     "current_page": 1,
     "data": [
         {
-            "id": 1,
-            "warehouselocation_id": 28,
-            "variation_id": 15955,
-            "created_at": "2019-09-02 17:35:44",
-            "updated_at": "2019-09-02 17:35:44",
-            "variation": {
-                "id": 15955,
-                "name": "XGD",
-                "sku": "1921176",
-                "product_id": 3714,
-                "product": {
-                    "id": 3714,
-                    "name": "Playera hombros descubiertos",
-                    "images": [
-                        {
-                            "id": 24667,
-                            "created_at": "2018-04-23 22:02:04",
-                            "updated_at": "2018-04-23 22:02:04",
-                            "file": "325ade57db14d47.jpg",
-                            "product_id": 3714,
-                            "order": 1,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 24668,
-                            "created_at": "2018-04-23 22:02:05",
-                            "updated_at": "2018-04-23 22:02:05",
-                            "file": "325ade57dc87c65.jpg",
-                            "product_id": 3714,
-                            "order": 2,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 24669,
-                            "created_at": "2018-04-23 22:02:07",
-                            "updated_at": "2018-04-23 22:02:07",
-                            "file": "325ade57deb62d4.jpg",
-                            "product_id": 3714,
-                            "order": 3,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 24670,
-                            "created_at": "2018-04-23 22:02:08",
-                            "updated_at": "2018-04-23 22:02:08",
-                            "file": "325ade57e005765.jpg",
-                            "product_id": 3714,
-                            "order": 4,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 24671,
-                            "created_at": "2018-04-23 22:02:10",
-                            "updated_at": "2018-04-23 22:02:10",
-                            "file": "325ade57e16561d.jpg",
-                            "product_id": 3714,
-                            "order": 5,
-                            "color_id": 0
-                        }
-                    ]
-                }
-            },
+            "product_id": 12,
+            "variation_id": 61,
+            "sku": "1742415",
+            "variation": "31",
+            "stock": 1,
+            "product": "Jeans slim rectos",
+            "department": "CABALLEROS  COLLEGE",
+            "image": "32596e37c9cd405.jpg"
+        },
+        {
+            "product_id": 586,
+            "variation_id": 2900,
+            "sku": "1795590",
+            "variation": "11",
+            "stock": 1,
+            "product": "Jeans ultra skinny desgastes",
+            "department": "DAMAS  COLLEGE",
+            "image": "325a1c6d5a27fbb.jpg"
         },
         ...
-    ]
+    ],
+        
+}
 
 ```
 
@@ -384,70 +342,85 @@ fetch(url, {
 
 ```json
 {
-    "current_page": 1,
-    "data": [
-        {
-            "id": 27,
-            "warehouselocation_id": 1,
-            "variation_id": 25773,
-            "created_at": "2019-09-02 17:35:44",
-            "updated_at": "2019-09-02 17:35:44",
-            "variation": {
-                "id": 25773,
-                "name": "XGD",
-                "sku": "1940121",
-                "product_id": 5729,
-                "product": {
-                    "id": 5729,
-                    "name": "Paquete Boxer Corto",
-                    "images": [
-                        {
-                            "id": 25489,
-                            "created_at": "2018-04-25 19:04:25",
-                            "updated_at": "2018-04-25 19:04:25",
-                            "file": "325ae0d138af48c.jpg",
-                            "product_id": 5729,
-                            "order": 1,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 25490,
-                            "created_at": "2018-04-25 19:04:26",
-                            "updated_at": "2018-04-25 19:04:26",
-                            "file": "325ae0d139ed215.jpg",
-                            "product_id": 5729,
-                            "order": 2,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 25491,
-                            "created_at": "2018-04-25 19:04:28",
-                            "updated_at": "2018-04-25 19:04:28",
-                            "file": "325ae0d13b45cc4.jpg",
-                            "product_id": 5729,
-                            "order": 3,
-                            "color_id": 0
-                        },
-                        {
-                            "id": 25492,
-                            "created_at": "2018-04-25 19:04:29",
-                            "updated_at": "2018-04-25 19:04:29",
-                            "file": "325ae0d13c7b533.jpg",
-                            "product_id": 5729,
-                            "order": 4,
-                            "color_id": 0
-                        }
-                    ]
+    "id": 1,
+        "warehouse_id": 1,
+        "rack": "1",
+        "block": "1",
+        "level": "1",
+        "side": "1",
+        "mapped_string": "R1-A1-N1",
+        "created_at": "2019-09-02 17:14:56",
+        "updated_at": "2019-09-02 17:14:56",
+        "current_page": 1,
+        "data": [
+            {
+                "id": 27,
+                "warehouselocation_id": 1,
+                "variation_id": 25773,
+                "created_at": "2019-09-02 17:35:44",
+                "updated_at": "2019-09-02 17:35:44",
+                "variation": {
+                    "id": 25773,
+                    "name": "XGD",
+                    "sku": "1940121",
+                    "product_id": 5729,
+                    "product": {
+                        "id": 5729,
+                        "name": "Paquete Boxer Corto",
+                        "images": [
+                            {
+                                "id": 25489,
+                                "created_at": "2018-04-25 19:04:25",
+                                "updated_at": "2018-04-25 19:04:25",
+                                "file": "325ae0d138af48c.jpg",
+                                "product_id": 5729,
+                                "order": 1,
+                                "color_id": 0
+                            },
+                            {
+                                "id": 25490,
+                                "created_at": "2018-04-25 19:04:26",
+                                "updated_at": "2018-04-25 19:04:26",
+                                "file": "325ae0d139ed215.jpg",
+                                "product_id": 5729,
+                                "order": 2,
+                                "color_id": 0
+                            },
+                            {
+                                "id": 25491,
+                                "created_at": "2018-04-25 19:04:28",
+                                "updated_at": "2018-04-25 19:04:28",
+                                "file": "325ae0d13b45cc4.jpg",
+                                "product_id": 5729,
+                                "order": 3,
+                                "color_id": 0
+                            },
+                            {
+                                "id": 25492,
+                                "created_at": "2018-04-25 19:04:29",
+                                "updated_at": "2018-04-25 19:04:29",
+                                "file": "325ae0d13c7b533.jpg",
+                                "product_id": 5729,
+                                "order": 4,
+                                "color_id": 0
+                            }
+                        ]
+                    }
                 }
             },
-            "warehouselocation": {
-                "id": 1,
-                "mapped_string": "R1-A1-N1",
-                "warehouse_id": 1
-            }
-        },
-        ...
-    ],
+            ...
+        ],
+        "first_page_url": "http://locations.test/api/v1/locationvariation/getitemsinlocation?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://locations.test/api/v1/locationvariation/getitemsinlocation?page=1",
+        "next_page_url": null,
+        "path": "http://locations.test/api/v1/locationvariation/getitemsinlocation",
+        "per_page": 15,
+        "prev_page_url": null,
+        "to": 4,
+        "total": 4
+    
 }
 ```
 
