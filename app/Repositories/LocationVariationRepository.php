@@ -241,8 +241,12 @@ class LocationVariationRepository extends BaseRepository
             if (empty($locationVariation)) {
                 return ApiResponses::notFound('El producto a eliminar no se encontro en la ubicacion.');
             } else {
+                $responseObject = [
+                  'product_id' => $variation->product_id,
+                  'deletedSize' => $variation->name,
+                ];                
                 $locationVariation->delete();
-                return ApiResponses::ok();
+                return ApiResponses::ok($responseObject);
             }            
         }
 
