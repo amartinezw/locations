@@ -192,11 +192,11 @@ class LocationVariationRepository extends BaseRepository
                 ])->select('id','name','internal_reference')
                 ->where('id', $variation->product_id)->get();
             } else {
-                $responseArray = LocationVariation::with(
-                    'variation:id,name,sku,product_id',
-                    'variation.product:id,name',
-                    'variation.product.images'
-                )->where('id', $locationVariation->id)->get();                
+                $responseArray = Product::with(['variations' => function($q) use ($variation) {
+                    $q->select('id','name','sku', 'product_id')->where('id', $variation->id);
+                }
+                ])->select('id','name','internal_reference')
+                ->where('id', $variation->product_id)->get();                
             } 
             return ApiResponses::okObject($responseArray);            
         }
