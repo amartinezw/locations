@@ -32,23 +32,24 @@ class LocationVariationRepository extends BaseRepository
                 $where[] = ['products.department', '=', $request->department];
             }
         }
-        $locationvariations = DB::table('variations')
-                            ->distinct()
-                            ->leftJoin('products', 'product_id', '=', 'products.id')                            
-                            ->rightJoin('location_variations', 'variations.id', '=', 'location_variations.variation_id')
-                            ->select('products.id as product_id', 
-                                    'variations.id as variation_id', 
-                                    'variations.sku', 
-                                    'variations.name as variation', 
-                                    DB::raw('count(variations.id) as stock'), 
-                                    'products.name as product', 
-                                    'products.department as department', 
-                                    DB::raw('(SELECT images.file FROM images WHERE products.id = images.product_id limit 1) as image'))
-                            ->where($where)
-                            ->groupBy('products.id', 'products.name', 'products.department', 'variations.id', 'variations.sku', 'variations.name')
-                            ->paginate($request->per_page ?: 20 )->toArray();
 
-        return ApiResponses::okObject($locationvariations);
+        $responseArray = Product::with(
+            ['variations' => function($q) {
+                $q->select('id','product_id','name','sku')
+                    ->whereHas('locations');
+            },
+             'variations.locations:id,variation_id,warehouselocation_id',
+             'variations.locations.warehouselocation:id,mapped_string', 
+             'images' => function($q) {
+                 $q->select('id','file', 'product_id')->groupBy('product_id');
+             }])
+        ->select('id','name','internal_reference')
+        ->whereHas('locations')
+        ->where($where)
+        ->paginate($request->per_page ?: 20)->toArray();
+
+
+        return ApiResponses::okObject($responseArray);
     }
 
     public function getItemsInLocation(Request $request)
