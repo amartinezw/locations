@@ -38,6 +38,38 @@ class LocationVariationController extends Controller
     }
 
     /**
+     * Obtiene la(s) ubicacion(es) de un sku
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getLocationsOfItem(Request $request)
+    {
+        try {
+            return $this->locationVariationRepository->getLocationsOfItem($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }  
+    }
+
+    /**
+     * Obtiene la(s) ubicacion(es) de un producto
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getLocationsOfProduct(Request $request)
+    {
+        try {
+            return $this->locationVariationRepository->getLocationsOfProduct($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }  
+    }
+
+    /**
      * Ubica el item en la determinada ubicacion utilizando scanner.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -54,7 +86,7 @@ class LocationVariationController extends Controller
             return $respuesta;
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();                        
+            return ApiResponses::internalServerError($e);                        
         }  
     }
     /**
@@ -71,6 +103,26 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->locateItem($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError();
+        }  
+    }
+
+    /**
+     * Quita el item de la ubicacion determinada.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function removeItemFromLocation(Request $request)
+    {
+        if (!$request->has('sku') || !$request->has('warehouselocation_id')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
+        try {
+            return $this->locationVariationRepository->removeItemFromLocation($request);
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
@@ -129,7 +181,7 @@ class LocationVariationController extends Controller
             return $this->locationVariationRepository->getall($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
+            return ApiResponses::internalServerError($e);
         }                      
     }
 
@@ -149,7 +201,7 @@ class LocationVariationController extends Controller
             return $this->locationVariationRepository->getItemsInLocation($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
+            return ApiResponses::internalServerError($e);
         }                      
     }
 

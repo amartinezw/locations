@@ -10,4 +10,9 @@ class Variation extends Model
     {
         return $this->belongsTo('App\Product')->withDefault();
     }
+
+    public function locations()
+    {
+        return $this->hasMany('App\LocationVariation');
+    }
 }

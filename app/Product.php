@@ -11,9 +11,19 @@ class Product extends Model
         return $this->hasMany('App\Image')->orderBy('order');
     }
 
+    public function locations()
+    {
+        return $this->hasMany('App\LocationVariation')->orderBy('created_at');
+    }
+
+    public function variations()
+    {
+        return $this->hasMany('App\Variation')->orderBy('id');
+    }
+
     public function firstimg()
     {
-        return $this->images()->limit(1);
+        return $this->images()->take(1);
     }
 
 }

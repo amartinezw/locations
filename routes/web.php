@@ -20,7 +20,7 @@ $router->get('/routes', function () use ($router) {
 });
 
 $router->group([
-    'middleware' => 'client',
+    //'middleware' => 'client',
     'prefix'	 => 'api/v1',
 ], function (\Laravel\Lumen\Routing\Router $router) {
     $router->get('/test-client', function () {
@@ -32,13 +32,19 @@ $router->group([
     $router->get('warehouselocations/getblocks', 'WarehouseLocationController@getblocks');
     $router->get('warehouselocations/getall', 'WarehouseLocationController@getall');
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
+    $router->get('locationvariation/getlocationsofitem', 'LocationVariationController@getLocationsOfItem');
+    $router->get('locationvariation/getlocationsofproduct', 'LocationVariationController@getLocationsOfProduct');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
+    $router->get('user/getusers', 'UserApiController@index');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');
+    $router->post('/warehouses/destroy', 'WarehouseController@destroy');
     $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');
     $router->post('locationvariation/locateitemscan', 'LocationVariationController@locateItemScan');
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
     $router->post('locationvariation/locateitemweb', 'LocationVariationController@locateItemWeb');
     $router->post('locationvariation/moveitemweb', 'LocationVariationController@moveItemWeb');
+    $router->post('locationvariation/removeitemfromlocation', 'LocationVariationController@removeItemFromLocation');
+    $router->post('user/authenticate', 'UserApiController@login');
 });

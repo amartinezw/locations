@@ -87,10 +87,15 @@ class WarehouseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
-        //
-        return "updateSuccess";
+        $v = Validator::make($request->all(), $this->warehouseRepository->getRules());
+        if ($v->fails()) {
+            return ApiResponses::badRequest();
+        }
+        $warehouse = Warehouse::find($request->warehouse_id);
+        $this->warehouseRepository->update($warehouse, ['name' => $request->name, 'store_id' => $request->store_id]);
+        return ApiResponses::okObject($warehouse);
     }
 
     /**
@@ -99,8 +104,13 @@ class WarehouseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request)
     {
-        //
+        $warehouse = Warehouse::find($request->warehouse_id);
+        if (empty($warehouse)) {
+            return ApiResponses::badRequest('La bodega no existe');
+        }
+        $this->warehouseRepository->delete($request->warehouse_id);
+        return ApiResponses::ok();
     }
 }

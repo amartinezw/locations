@@ -25,7 +25,7 @@
       </span>
     </a>
     <div class="tocify-wrapper">
-        <img src="images/logo.png" height="120px" />
+        <img src="images/logo.png" width="150px" />
                     <div class="lang-selector">
                                   <a href="#" data-language-name="bash">bash</a>
                                   <a href="#" data-language-name="javascript">javascript</a>
@@ -45,13 +45,8 @@
       <div class="content">
           <!-- START_INFO -->
 <h1>Info</h1>
-<blockquote>
-<p>Client id: 1 </p>
-<p>Client secret: doJ0zQ1gmhP33BZ9paJZJksZxR5SICYj4NIQGraV</p>
-<p>Access Token example: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjFiNjM2MWE2MDkzYjRiNzMwZWYxMTY1YzIxODA1ZmYxYWFjNWZhN2JlMjRlMzliZGQ2Yjk2NTA1OTcxZDZjMDgxNjE3Y2Y2YzBlYjUwMWRhIn0.eyJhdWQiOiIxIiwianRpIjoiMWI2MzYxYTYwOTNiNGI3MzBlZjExNjVjMjE4MDVmZjFhYWM1ZmE3YmUyNGUzOWJkZDZiOTY1MDU5NzFkNmMwODE2MTdjZjZjMGViNTAxZGEiLCJpYXQiOjE1NjgwNTAwMDEsIm5iZiI6MTU2ODA1MDAwMSwiZXhwIjoxNTk5NjcyNDAxLCJzdWIiOiIiLCJzY29wZXMiOltdfQ.I-zsnSQ7kvBgwYos9vcvsjsZoRubdhtyxLlSGXhIfO5FVD0qBf2OuxpTrTFaCzZuSt0xaZjBNbRxKC8YfZou4wY0HTFsquz7nfRTBSnyG1O1oI1RkJq3H9MHNdZSASyxd90SzD-hUN_erkQGV2Zx3QJcwBWbBrVrtuxP-VpeeHh2g3X9PnG5GnR5i7mkhFbPSVI6gYQvgbRvXcEMCGHt2ifKYC3cAr43cHUrNDQphYEesD9AxRgdruikVBQ3ZKFSi1Ax80Kr-iPrgaOIQMc17mQZK18x3jfsNNpFgQMWzcaUvJdF60G-DemLQHmnj3CEjSQt42vtwupHMsABGji_HFC0u26F1yuh2FcX1iVQ59UJ2bajYiWuudJt8PawVv0E2OZlb2AWJHa2Hpmt6ZX_TBYMRbuIWdRAU0UOUC5vbsf6tl4dwjAwig36LllWDNGaGZozK4DCyepOHpml35vBn1C9ju5KBKmZygGcULgPN7ehuxMCos8vRleHGx2qaXAZUiwPT55DLI_XjTqQe1R-qxDxqAWws6at0CnM4hiMj5VEl9ptvhzYpVJbd9ytlMV4rVS3woFdAz4APFopHx-nGtno5bbJCheL0NwkLD9JldR--MuZscx2NRhvdiqAkinryqQo3eaBqblTLT9J8z_U4kwwph-X5r_4dNngy1SlUYQ</p>
-</blockquote>
-<p>Agregar en los headers de cada request </p>
-<p>&quot;Authorization&quot; : 'Bearer ' + clientToken</p>
+<p>Welcome to the generated API reference.
+<a href="http://localhost/docs/collection.json">Get Postman Collection</a></p>
 <!-- END_INFO -->
 <h1>general</h1>
 <!-- START_30f6439aadb9bb2fecbba2f85ace6cb8 -->
@@ -449,6 +444,50 @@ fetch(url, {
 <p><code>POST /api/v1/warehouses/store</code></p>
 <p>Crea una bodega con el nombre y el identificador de tienda a la que pertenece.</p>
 <!-- END_b96feadb8f9229dfd6196e44954067d1 -->
+<!-- START_0bfd5dbd84e9d1da981db2a673e3c53f -->
+<h2>Update the specified resource in storage.</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X POST "/api/v1/warehouses/update" </code></pre>
+<pre><code class="language-javascript">const url = new URL("/api/v1/warehouses/update?warehouse_id=1&amp;name=bodega1&amp;store_id=1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>POST /api/v1/warehouses/update</code></p>
+<!-- END_0bfd5dbd84e9d1da981db2a673e3c53f -->
+<!-- START_00df109a0bc0e3793507054431d3f012 -->
+<h2>Remove the specified resource from storage.</h2>
+<blockquote>
+<p>Example request:</p>
+</blockquote>
+<pre><code class="language-bash">curl -X POST "/api/v1/warehouses/destroy" </code></pre>
+<pre><code class="language-javascript">const url = new URL("/api/v1/warehouses/destroy?warehouse_id=1");
+
+let headers = {
+    "Accept": "application/json",
+    "Content-Type": "application/json",
+}
+
+fetch(url, {
+    method: "POST",
+    headers: headers,
+})
+    .then(response =&gt; response.json())
+    .then(json =&gt; console.log(json));</code></pre>
+<h3>HTTP Request</h3>
+<p><code>POST /api/v1/warehouses/destroy</code></p>
+<!-- END_00df109a0bc0e3793507054431d3f012 -->
 <!-- START_07e4dafef70ffd2ec75eb8cf2253e5b9 -->
 <h2>/warehouselocations/maplocations</h2>
 <blockquote>
