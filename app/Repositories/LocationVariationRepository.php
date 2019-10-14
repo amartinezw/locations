@@ -145,6 +145,7 @@ class LocationVariationRepository extends BaseRepository
 
     public function locateItem(Request $request)
     {
+    
         $variation = Variation::where('sku', $request->sku)->first();
         if (empty($variation)) {
             return ApiResponses::notFound('No se encontro el SKU a ubicar.');
@@ -166,7 +167,7 @@ class LocationVariationRepository extends BaseRepository
         $lvCollection = [];
 
         if (empty($locationVariation)) {            
-            if ($request->withSiblings == 'related') {
+            if ($request->withSiblings == "true") {
                 $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
                 foreach ($variationSiblings as $key => $vs) {
                     $lvExists = LocationVariation::where([
@@ -192,7 +193,7 @@ class LocationVariationRepository extends BaseRepository
                 $locationVariation->save();
             }
 
-            if ($request->has('withSiblings')) {
+            if ($request->withSiblings == "true") {
                 $responseArray = Product::with(['variations' => function($q) {
                         $q->select('id','name','sku', 'product_id');                          
                     }
@@ -220,7 +221,7 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro el SKU a remover de ubicacion.');
         }
 
-        if ($request->has('withSiblings')) {
+        if ($request->withSiblings == "true") {
             $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
             foreach ($variationSiblings as $key => $vs) {
                 $lv = LocationVariation::where([
