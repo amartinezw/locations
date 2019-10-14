@@ -71,17 +71,19 @@ class LocationVariationRepository extends BaseRepository
             }, 
              'images' => function($q) {
                  $q->select('id','file', 'product_id')->groupBy('product_id');
-             },
-             'locations' => function($q) {
-                $q->select('id','product_id','warehouselocation_id')->groupBy('product_id');                    
-             },
-             'locations.warehouselocation:id,mapped_string'])
+             }])
         ->select('id','name','internal_reference')
         ->whereHas('locations', function($q) use ($warehouselocation) {
             $q->where('warehouselocation_id', $warehouselocation->id);
         })->paginate($request->per_page ?: 20)->toArray();
 
-        $responseArray = array_merge($responseArray, ['mapped_string' => $request->mapped_string]);
+        $responseArray = array_merge($responseArray, [
+            'warehouselocation_id' => $warehouselocation->id,
+            'rack' => $warehouselocation->rack,
+            'block' => $warehouselocation->block,
+            'level' => $warehouselocation->level,
+            'mapped_string' => $warehouselocation->mapped_string
+        ]);
 
         return ApiResponses::okObject($responseArray);
     }
