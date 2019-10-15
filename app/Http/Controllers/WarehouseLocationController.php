@@ -16,7 +16,7 @@ class WarehouseLocationController extends Controller
 {
 
     public function __construct(Request $request)
-    {        
+    {
         $this->warehouseLocationRepository = new WarehouseLocationRepository();
     }
     /**
@@ -51,8 +51,8 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getlocations($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
-        }                      
+            return ApiResponses::internalServerError($e->getMessage());
+        }
     }
 
     /**
@@ -66,8 +66,8 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getblocks($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();                      
-        }                      
+            return ApiResponses::internalServerError();
+        }
     }
 
     /**
@@ -83,7 +83,7 @@ class WarehouseLocationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
-        }                      
+        }
     }
 
     /**
@@ -96,7 +96,7 @@ class WarehouseLocationController extends Controller
     {
         $v = Validator::make($request->all(), $this->warehouseLocationRepository->getRules());
         if ($v->fails()) {
-            return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();                        
+            return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();
         }
         return $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides);
     }
@@ -109,7 +109,7 @@ class WarehouseLocationController extends Controller
      */
     public function show($id)
     {
-                  
+
     }
 
     /**
