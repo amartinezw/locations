@@ -18,37 +18,56 @@ class LocationVariationRepository extends BaseRepository
     public function getall(Request $request)
     {        
          $where = [];
+         $whereHas = [];
         if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('department')) {
             if ($request->has('name')) {
-                $where[] = ['products.name', 'LIKE', '%'.$request->name.'%'];
-            }
-            if ($request->has('sku')) {
-                $where[] = ['variations.sku', '=', $request->sku];
+                $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
             }
             if ($request->has('active')) {
-                $where[] = ['products.activation_disabled', '=', $request->active];
+                $where[] = ['activation_disabled', '=', $request->active];
             }
             if ($request->has('department')) {
-                $where[] = ['products.department', '=', $request->department];
+                $where[] = ['department', '=', $request->department];
             }
         }
-
-        $responseArray = Product::with(
-            ['variations' => function($q) {
-                $q->select('id','product_id','name','sku')
-                    ->whereHas('locations');
-            },
-             'variations.locations:id,variation_id,warehouselocation_id',
-             'variations.locations.warehouselocation:id,mapped_string', 
-             'images' => function($q) {
-                 $q->select('id','file', 'product_id')->groupBy('product_id');
-             }])
-        ->select('id','name','internal_reference')
-        ->whereHas('locations')
-        ->where($where)
-        ->paginate($request->per_page ?: 20)->toArray();
-
-
+        if ($request->has('notLocated')) {
+            $responseArray = Product::with(
+                ['variations' => function($q) {
+                    $q->select('id','product_id','name','sku');
+                },                 
+                 'images' => function($q) {
+                     $q->select('id','file', 'product_id')->groupBy('product_id');
+                 }])
+            ->select('id','name','internal_reference', 'provider')
+            ->where($where)            
+            ->whereHas('variations', function($q) use ($request) {
+                if ($request->has('sku')) {
+                    $q->where('sku', $request->sku);
+                }
+            })                
+            ->paginate($request->per_page ?: 20)->toArray();
+        } else {
+            $responseArray = Product::with(
+                ['variations' => function($q) {
+                    $q->select('id','product_id','name','sku')
+                        ->whereHas('locations');
+                },
+                 'variations.locations:id,variation_id,warehouselocation_id',
+                 'variations.locations.warehouselocation:id,mapped_string', 
+                 'images' => function($q) {
+                     $q->select('id','file', 'product_id')->groupBy('product_id');
+                 }])
+            ->select('id','name','internal_reference', 'provider')
+            ->where($where)
+            ->whereHas('locations')
+            ->whereHas('variations', function($q) use ($request) {
+                if ($request->has('sku')) {
+                    $q->where('sku', $request->sku);
+                }
+            })                
+            ->paginate($request->per_page ?: 20)->toArray();            
+        }
+        
         return ApiResponses::okObject($responseArray);
     }
 
