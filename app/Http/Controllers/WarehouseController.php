@@ -61,7 +61,6 @@ class WarehouseController extends Controller
      */
     public function getall(Request $request)
     {
-        //var_dump($request->all());
         try {
             return response()->json($this->warehouseRepository->getall($request), 200);
         } catch (\Exception $e) {
