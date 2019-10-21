@@ -33,12 +33,12 @@ class LocationVariationRepository extends BaseRepository
         if ($request->has('notLocated')) {
             $responseArray = Product::with(
                 ['variations' => function($q) {
-                    $q->select('id','product_id','name','sku');
+                    $q->select('id','product_id','name','sku', 'stock', 'price');
                 },                 
                  'images' => function($q) {
                      $q->select('id','file', 'product_id')->groupBy('product_id');
                  }])
-            ->select('id','name','internal_reference', 'provider')
+            ->select('id','name','internal_reference', 'provider', 'colors_es')
             ->where($where)            
             ->whereHas('variations', function($q) use ($request) {
                 if ($request->has('sku')) {
@@ -49,15 +49,19 @@ class LocationVariationRepository extends BaseRepository
         } else {
             $responseArray = Product::with(
                 ['variations' => function($q) {
-                    $q->select('id','product_id','name','sku')
+                    $q->select('id','product_id','name','sku', 'stock', 'price')
                         ->whereHas('locations');
                 },
+                 'locations' => function($q) {
+                    $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
+                 },
+                 'locations.warehouselocation:id,mapped_string',
                  'variations.locations:id,variation_id,warehouselocation_id',
                  'variations.locations.warehouselocation:id,mapped_string', 
                  'images' => function($q) {
                      $q->select('id','file', 'product_id')->groupBy('product_id');
                  }])
-            ->select('id','name','internal_reference', 'provider')
+            ->select('id','name','internal_reference', 'provider', 'colors_es')
             ->where($where)
             ->whereHas('locations')
             ->whereHas('variations', function($q) use ($request) {
