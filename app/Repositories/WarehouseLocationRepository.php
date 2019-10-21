@@ -67,7 +67,21 @@ class WarehouseLocationRepository extends BaseRepository
         else
             $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$direction)->paginate($request->per_page);
 
-        //$warehouserepo = WarehouseLocation::raw('SELECT * FROM stores INNER JOIN warehouse_locations ON stores.id = warehouse_locations.warehouse_id INNER JOIN warehouses ON stores.id = warehouses.store_id WHERE warehouses.id='.$request->warehouse_id)->paginate($request->per_page);
+        /*$locationvariations = DB::table('variations')
+            ->distinct()
+            ->leftJoin('products', 'product_id', '=', 'products.id')
+            ->rightJoin('location_variations', 'variations.id', '=', 'location_variations.variation_id')
+            ->select('products.id as product_id',
+                'variations.id as variation_id',
+                'variations.sku',
+                'variations.name as variation',
+                DB::raw('count(variations.id) as stock'),
+                'products.name as product',
+                'products.department as department',
+                DB::raw('(SELECT images.file FROM images WHERE products.id = images.product_id limit 1) as image'))
+            ->groupBy('products.id', 'products.name', 'products.department', 'variations.id', 'variations.sku', 'variations.name')
+            ->get();
+        var_dump($locationvariations);*/
 
         return ApiResponses::okObject($warehouserepo);
     }
