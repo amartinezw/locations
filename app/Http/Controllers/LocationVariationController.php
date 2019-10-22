@@ -223,6 +223,22 @@ class LocationVariationController extends Controller
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }                      
+    }
+
+    /**
+     * Obtiene un resumen de la aplicacion
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getSummary(Request $request)
+    {        
+        try {
+            return $this->locationVariationRepository->getSummary($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }                      
     }    
 
     /**

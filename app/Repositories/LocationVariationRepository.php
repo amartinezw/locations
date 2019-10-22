@@ -5,6 +5,8 @@ namespace App\Repositories;
 use App\Http\Controllers\ApiResponses;
 use App\LocationVariation;
 use App\Product;
+use App\Warehouse;
+use App\Store;
 use App\Variation;
 use App\WarehouseLocation;
 use DB;
@@ -17,6 +19,21 @@ class LocationVariationRepository extends BaseRepository
 {
     protected $model = 'App\LocationVariation';
     
+    public function getSummary(Request $request) {
+        $productsLocatedCount = LocationVariation::groupBy('product_id')->get()->count();
+        $warehousesCount = Warehouse::get()->count();
+        $storesCount = Store::get()->count();
+        $warehouseLocationsCount = WarehouseLocation::get()->count();
+
+        $responseObject = [
+            'productsLocatedCount' => $productsLocatedCount,
+            'warehousesCount' => $warehousesCount,
+            'storesCount' => $storesCount,
+            'warehouseLocationsCount' => $warehouseLocationsCount
+        ];
+        return ApiResponses::okObject($responseObject);
+    }
+
     public function getall(Request $request)
     {        
          $where = [];

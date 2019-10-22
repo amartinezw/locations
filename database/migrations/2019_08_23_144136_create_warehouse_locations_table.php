@@ -16,10 +16,10 @@ class CreateWarehouseLocationsTable extends Migration
         Schema::create('warehouse_locations', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('warehouse_id');
-            $table->string('rack');
-            $table->string('block');
-            $table->string('level');
-            $table->string('side');
+            $table->integer('rack');
+            $table->integer('block');
+            $table->integer('level');
+            $table->integer('side');
             $table->string('mapped_string');
             $table->timestamps();
         });
