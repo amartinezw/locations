@@ -37,6 +37,9 @@ $router->group([
     $router->get('locationvariation/getlocationsofproduct', 'LocationVariationController@getLocationsOfProduct');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
     $router->get('user/getusers', 'UserApiController@index');
+    $router->get('user/delete/{id}', 'UserApiController@delete');
+    $router->get('roles/getall', 'RoleApiController@index');
+    $router->get('roles/delete/{id}', 'RoleApiController@delete');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');
@@ -48,4 +51,8 @@ $router->group([
     $router->post('locationvariation/moveitemweb', 'LocationVariationController@moveItemWeb');
     $router->post('locationvariation/removeitemfromlocation', 'LocationVariationController@removeItemFromLocation');
     $router->post('user/authenticate', 'UserApiController@login');
+    $router->post('user/create', 'UserApiController@store');
+    $router->post('user/update/{id}', 'UserApiController@update');
+    $router->post('roles/create', 'RoleApiController@store');
+    $router->post('roles/update/{id}', 'RoleApiController@update');
 });

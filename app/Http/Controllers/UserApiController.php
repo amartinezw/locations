@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Auth;
 use Log;
@@ -47,11 +48,13 @@ class UserApiController extends Controller
                         }
                     }
                 )
+                ->with('roles')
                 ->orderBy($oRequest->input('order', 'id'), $oRequest->input('sort', 'asc'))
                 ->paginate((int) $oRequest->input('per_page', 25));
 
+
             // Envía datos paginados
-            return response()->json(["status" => "success", "data" => ["usuarios" => $aUsuarios]]);
+            return response()->json($aUsuarios);
         } catch (\Exception $e) {
             // Registra error
             Log::error('Error en '.__METHOD__.' línea '.$e->getLine().':'.$e->getMessage());
@@ -105,6 +108,147 @@ class UserApiController extends Controller
                 'code' => 500,
                 'type' => 'Usuario',
                 'message' => 'Error al obtener el recurso: '.$e->getMessage(),
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * @param Request $oRequest
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function store(Request $oRequest)
+    {
+        try {
+
+            $oValidator = Validator::make($oRequest->all(), [
+                'name' => 'required|min:3',
+                'email' => 'required|unique:users,email|email',
+                'password' => 'required|min:5',
+                'address' => 'required'
+            ]);
+            if ($oValidator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 422,
+                    'message' => 'Validacion fallida '. $oValidator->errors(),
+                ])->setStatusCode(422);
+            }
+
+            // Crea usuario
+            $usuario = $this->mUser->create([
+                'name' => $oRequest->name,
+                'email' => $oRequest->email,
+                'address' => $oRequest->address,
+                'email_verified_at' => Carbon::now()->format('Y-m-d H:i'),
+                'password' => app('hash')->make($oRequest->password)
+            ]);
+
+            $usuario->assignRole($oRequest->rol);
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Usuario creado',
+            ])->setStatusCode(200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(500);
+        }
+
+    }
+
+    /**
+     * @param Request $oRequest
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function update(Request $oRequest, $id)
+    {
+        try {
+            $oValidator = Validator::make($oRequest->all(), [
+                'id' => 'required|numeric'
+            ]);
+            if ($oValidator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 500,
+                    'message' => 'Validacion fallida '.$oValidator->errors(),
+                ])->setStatusCode(500);
+            }
+
+            //Busca usuario
+            $usuario = $this->mUser->find($id);
+            if(count($usuario->roles) > 0) {
+                $usuario->removeRole($usuario->roles[0]->name);
+            }
+            $usuario->name = $oRequest->name;
+            $usuario->email = $oRequest->email;
+            $usuario->address = $oRequest->address;
+            $usuario->assignRole($oRequest->roles[0]['name']);
+            $usuario->update();
+
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Usuario actualizado',
+            ])->setStatusCode(200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => $e->getMessage(),
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function delete($id)
+    {
+        try {
+
+            $oValidator = Validator::make(['id' => $id], [
+                'id' => 'required|numeric',
+            ]);
+
+            if ($oValidator->fails()) {
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 500,
+                    'message' => 'Validacion fallida',
+                ])->setStatusCode(500);
+            }
+
+            // Busca usuario
+            $oUsuario = $this->mUser->find($id);
+            if ($oUsuario == null) {
+                return response()->json([
+                    'status' => 'error',
+                    'code' => 404,
+                    'message' => 'Usuario no encontrado',
+                ])->setStatusCode(404);
+            }
+
+            // Elimina usuario
+            $oUsuario->delete();
+            return response()->json([
+                'status' => 'success',
+                'code' => 200,
+                'message' => 'Usuario eliminado',
+            ])->setStatusCode(200);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'code' => 500,
+                'message' => $e->getMessage(),
             ])->setStatusCode(500);
         }
     }
