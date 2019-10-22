@@ -2,14 +2,16 @@
 
 namespace App\Repositories;
 
-use App\LocationVariation;
-use App\WarehouseLocation;
-use App\Variation;
-use App\Product;
-use Illuminate\Http\Request;
 use App\Http\Controllers\ApiResponses;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\LocationVariation;
+use App\Product;
+use App\Variation;
+use App\WarehouseLocation;
 use DB;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class LocationVariationRepository extends BaseRepository
 {
@@ -317,6 +319,44 @@ class LocationVariationRepository extends BaseRepository
         $locationVariation->save();
 
         return ApiResponses::okObject($locationVariation);
+    }
+
+    public function getLatest(Request $request)
+    {
+        $responseArray = Product::with(
+            ['variations' => function($q) use ($request) {
+                $q->select('id','product_id','name','sku')
+                    ->whereHas('locations', function($q) use ($request) {
+                        $q->whereHas('warehouselocation', function($q) use ($request) {
+                            $q->where('warehouse_id', $request->warehouse_id);
+                        });            
+                    });
+            },
+             'locations' => function($q) {
+                $q->select('id', 'warehouselocation_id', 'product_id')
+                    ->groupBy('warehouselocation_id','product_id');
+             },
+             'locations.warehouselocation:id,mapped_string',
+             'variations.locations:id,variation_id,warehouselocation_id,updated_at',
+             'variations.locations.warehouselocation:id,mapped_string',  
+             'images' => function($q) {
+                 $q->select('id','file', 'product_id')->groupBy('product_id');
+             }])
+        ->select('id','updated_at','name','internal_reference', 'provider', 'colors_es')        
+        ->whereHas('locations', function($q) use ($request) {
+            $q->whereHas('warehouselocation', function($q) use ($request) {
+                $q->where('warehouse_id', $request->warehouse_id);
+            });
+            $q->orderBy('updated_at', 'DESC');
+        })->take(10)->get();
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        $currentPageCollection = $responseArray->slice(0, 10)->all();
+        $responseArray = new LengthAwarePaginator($currentPageCollection, count($responseArray), 10);
+
+        $responseArray->setPath(LengthAwarePaginator::resolveCurrentPath());
+
+        return ApiResponses::okObject($responseArray);
     }
     
 }

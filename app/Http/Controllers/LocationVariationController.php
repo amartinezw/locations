@@ -206,6 +206,26 @@ class LocationVariationController extends Controller
     }
 
     /**
+     * Obtiene los productos mas recientemente ubicados de la bodega
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function getLatest(Request $request)
+    {
+        if (!$request->has('warehouse_id')) {
+            return ApiResponses::badRequest('Parametros no validos.');
+        }
+
+        try {
+            return $this->locationVariationRepository->getLatest($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
+        }                      
+    }    
+
+    /**
      * Display the specified resource.
      *
      * @param  int  $id

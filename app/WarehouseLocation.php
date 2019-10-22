@@ -10,8 +10,8 @@ class WarehouseLocation extends Model
 
     public static $rules = [
         'warehouse_id' 	=> 'required',
-        'blocks'    	=> 'required|integer|between:1,10',
-        'levels'    	=> 'required|integer|between:1,10',
+        'blocks'    	=> 'required|integer|between:1,50',
+        'levels'    	=> 'required|integer|between:1,50',
         'sides'    		=> 'required|integer|between:1,2',
     ];
 

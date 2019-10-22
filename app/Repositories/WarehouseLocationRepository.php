@@ -82,7 +82,7 @@ class WarehouseLocationRepository extends BaseRepository
                     ->withCount('items')
                     ->where('rack', $request->rack)
                     ->where('warehouse_id', $request->warehouse_id)
-                    ->orderBy('side', 'ASC')
+                    ->orderBy('block', 'ASC')
                     ->get();
         return ApiResponses::okObject($blocks);
     }
