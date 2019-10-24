@@ -18,37 +18,61 @@ class LocationVariationRepository extends BaseRepository
     public function getall(Request $request)
     {        
          $where = [];
+         $whereHas = [];
         if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('department')) {
             if ($request->has('name')) {
-                $where[] = ['products.name', 'LIKE', '%'.$request->name.'%'];
-            }
-            if ($request->has('sku')) {
-                $where[] = ['variations.sku', '=', $request->sku];
+                $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
             }
             if ($request->has('active')) {
-                $where[] = ['products.activation_disabled', '=', $request->active];
+                $where[] = ['activation_disabled', '=', $request->active];
             }
             if ($request->has('department')) {
-                $where[] = ['products.department', '=', $request->department];
+                $where[] = ['department', '=', $request->department];
             }
         }
-        $locationvariations = DB::table('variations')
-                            ->distinct()
-                            ->leftJoin('products', 'product_id', '=', 'products.id')                            
-                            ->rightJoin('location_variations', 'variations.id', '=', 'location_variations.variation_id')
-                            ->select('products.id as product_id', 
-                                    'variations.id as variation_id', 
-                                    'variations.sku', 
-                                    'variations.name as variation', 
-                                    DB::raw('count(variations.id) as stock'), 
-                                    'products.name as product', 
-                                    'products.department as department', 
-                                    DB::raw('(SELECT images.file FROM images WHERE products.id = images.product_id limit 1) as image'))
-                            ->where($where)
-                            ->groupBy('products.id', 'products.name', 'products.department', 'variations.id', 'variations.sku', 'variations.name')
-                            ->paginate($request->per_page ?: 20 )->toArray();
-
-        return ApiResponses::okObject($locationvariations);
+        if ($request->has('notLocated')) {
+            $responseArray = Product::with(
+                ['variations' => function($q) {
+                    $q->select('id','product_id','name','sku', 'stock', 'price');
+                },                 
+                 'images' => function($q) {
+                     $q->select('id','file', 'product_id')->groupBy('product_id');
+                 }])
+            ->select('id','name','internal_reference', 'provider', 'colors_es')
+            ->where($where)            
+            ->whereHas('variations', function($q) use ($request) {
+                if ($request->has('sku')) {
+                    $q->where('sku', $request->sku);
+                }
+            })                
+            ->paginate($request->per_page ?: 20)->toArray();
+        } else {
+            $responseArray = Product::with(
+                ['variations' => function($q) {
+                    $q->select('id','product_id','name','sku', 'stock', 'price')
+                        ->whereHas('locations');
+                },
+                 'locations' => function($q) {
+                    $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
+                 },
+                 'locations.warehouselocation:id,mapped_string',
+                 'variations.locations:id,variation_id,warehouselocation_id',
+                 'variations.locations.warehouselocation:id,mapped_string', 
+                 'images' => function($q) {
+                     $q->select('id','file', 'product_id')->groupBy('product_id');
+                 }])
+            ->select('id','name','internal_reference', 'provider', 'colors_es')
+            ->where($where)
+            ->whereHas('locations')
+            ->whereHas('variations', function($q) use ($request) {
+                if ($request->has('sku')) {
+                    $q->where('sku', $request->sku);
+                }
+            })                
+            ->paginate($request->per_page ?: 20)->toArray();            
+        }
+        
+        return ApiResponses::okObject($responseArray);
     }
 
     public function getItemsInLocation(Request $request)
@@ -145,6 +169,7 @@ class LocationVariationRepository extends BaseRepository
 
     public function locateItem(Request $request)
     {
+    
         $variation = Variation::where('sku', $request->sku)->first();
         if (empty($variation)) {
             return ApiResponses::notFound('No se encontro el SKU a ubicar.');
@@ -158,59 +183,60 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
 
-        $locationVariation = LocationVariation::where([
-            'variation_id' => $variation->id,
-            'warehouselocation_id' => $warehouselocation->id
-        ])->first();
-
         $lvCollection = [];
 
-        if (empty($locationVariation)) {            
-            if ($request->withSiblings == 'related') {
-                $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
-                foreach ($variationSiblings as $key => $vs) {
-                    $lvExists = LocationVariation::where([
-                        'variation_id' => $vs->id,
-                        'warehouselocation_id' => $warehouselocation->id
-                    ])->first();
-                    if (empty($lvExists)) {
-                        $lv = new LocationVariation;                        
-                        $lv->warehouselocation_id = $warehouselocation->id;
-                        $lv->variation_id = $vs->id;
-                        $lv->product_id = $vs->product_id;
-                        $lv->save();
-                        $lvCollection[] = $lv->id;
-                    }
+                
+        if ($request->withSiblings == "true") {
+            $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
+            foreach ($variationSiblings as $key => $vs) {
+                $lvExists = LocationVariation::where([
+                    'variation_id' => $vs->id,
+                    'warehouselocation_id' => $warehouselocation->id
+                ])->first();
+                if (empty($lvExists)) {
+                    $lv = new LocationVariation;                        
+                    $lv->warehouselocation_id = $warehouselocation->id;
+                    $lv->variation_id = $vs->id;
+                    $lv->product_id = $vs->product_id;
+                    $lv->save();
+                    $lvCollection[] = $lv->id;
                 }
             }
+        }
 
-            else if (isset($request->mapped_string) && isset($request->warehouse_id)){
+        else if (isset($request->mapped_string) && isset($request->warehouse_id)) {
+
+            $locationVariation = LocationVariation::where([
+                'variation_id' => $variation->id,
+                'warehouselocation_id' => $warehouselocation->id
+            ])->first();
+             
+            if (empty($locationVariation)) {            
                 $locationVariation = new LocationVariation;                 
                 $locationVariation->warehouselocation_id = $warehouselocation->id;
                 $locationVariation->variation_id = $variation->id;
                 $locationVariation->product_id = $variation->product_id;
-                $locationVariation->save();
-            }
-
-            if ($request->has('withSiblings')) {
-                $responseArray = Product::with(['variations' => function($q) {
-                        $q->select('id','name','sku', 'product_id');                          
-                    }
-                ])->select('id','name','internal_reference')
-                ->where('id', $variation->product_id)->get();
+                $locationVariation->save();                    
             } else {
-                $responseArray = Product::with(['variations' => function($q) use ($variation) {
-                    $q->select('id','name','sku', 'product_id')->where('id', $variation->id);
-                }
-                ])->select('id','name','internal_reference')
-                ->where('id', $variation->product_id)->get();                
-            } 
-            return ApiResponses::okObject($responseArray);            
-        }
-        else {
-            return ApiResponses::found('El producto ya se encuentra ubicado aqui');               
+                return ApiResponses::found('El producto ya se encuentra ubicado aqui');               
+            }
         }
 
+        if ($request->withSiblings == "true") {
+            $responseArray = Product::with(['variations' => function($q) {
+                    $q->select('id','name','sku', 'product_id');                          
+                }
+            ])->select('id','name','internal_reference')
+            ->where('id', $variation->product_id)->get();
+        } else {
+            $responseArray = Product::with(['variations' => function($q) use ($variation) {
+                $q->select('id','name','sku', 'product_id')->where('id', $variation->id);
+            }
+            ])->select('id','name','internal_reference')
+            ->where('id', $variation->product_id)->get();                
+        } 
+        return ApiResponses::okObject($responseArray);            
+    
     }
 
     public function removeItemFromLocation(Request $request)
@@ -220,7 +246,7 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro el SKU a remover de ubicacion.');
         }
 
-        if ($request->has('withSiblings')) {
+        if ($request->withSiblings == "true") {
             $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
             foreach ($variationSiblings as $key => $vs) {
                 $lv = LocationVariation::where([
