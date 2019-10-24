@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\ApiResponses;
 use App\Warehouse;
 use App\WarehouseLocation;
-use App\Http\Controllers\ApiResponses;
 use App\Repositories\WarehouseLocationRepository;
 
 use Illuminate\Http\Request;
@@ -38,6 +38,21 @@ class WarehouseLocationController extends Controller
     public function store(Request $request)
     {
         //
+    }
+
+    /**
+     * Obtener todas las ubicaciones de determinada Bodega.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function editLocationActive(Request $request)
+    {
+        try {
+            return $this->warehouseLocationRepository->editLocationActive($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e->getMessage());
+        }
     }
 
     /**

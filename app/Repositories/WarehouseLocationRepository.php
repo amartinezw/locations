@@ -14,7 +14,14 @@ class WarehouseLocationRepository extends BaseRepository
 {
     protected $model = 'App\WarehouseLocation';
 
-
+    /**
+     * @param $warehouse_id
+     * @param $blocks
+     * @param $levels
+     * @param $sides
+     * @param WarehouseLocation $warehouseLocation
+     * @return \Illuminate\Http\Response
+     */
     public function mapLocations($warehouse_id, $blocks, $levels, $sides)
     {
 
@@ -57,33 +64,28 @@ class WarehouseLocationRepository extends BaseRepository
     {
         $column   = 'warehouse_id';
         $direction  = 'asc';
-        if($request->column!='undefined'){
+        if($request->column!='undefined' && !is_null($request->column)){
             $column     = $request->column;
             $direction  = $request->direction;
         }
-
         if($request->q)
             $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$direction)->paginate($request->per_page);
         else
             $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$direction)->paginate($request->per_page);
 
-        /*$locationvariations = DB::table('variations')
-            ->distinct()
-            ->leftJoin('products', 'product_id', '=', 'products.id')
-            ->rightJoin('location_variations', 'variations.id', '=', 'location_variations.variation_id')
-            ->select('products.id as product_id',
-                'variations.id as variation_id',
-                'variations.sku',
-                'variations.name as variation',
-                DB::raw('count(variations.id) as stock'),
-                'products.name as product',
-                'products.department as department',
-                DB::raw('(SELECT images.file FROM images WHERE products.id = images.product_id limit 1) as image'))
-            ->groupBy('products.id', 'products.name', 'products.department', 'variations.id', 'variations.sku', 'variations.name')
-            ->get();
-        var_dump($locationvariations);*/
-
         return ApiResponses::okObject($warehouserepo);
+    }
+
+    public function editLocationActive(Request $request){
+        $warehouseLocation = WarehouseLocation::find($request->id);
+        if (empty($warehouseLocation)) {
+            return ApiResponses::badRequest('La localización no existe.');
+        }
+
+        $warehouseLocation->active = $request->chk=="true"?1:0;
+        $warehouseLocation->save();
+
+        return ApiResponses::created("Se modifico con exito");
     }
 
     public function getalllocations(Request $request)

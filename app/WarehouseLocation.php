@@ -4,9 +4,19 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * Class WarehouseLocation
+ * @package App
+ * @property int $warehouse_id
+ * @property int $rack
+ * @property int $block
+ * @property int $level
+ * @property boolean $active
+ */
+
 class WarehouseLocation extends Model
 {
-    protected $fillable = ['warehouse_id', 'rack', 'block', 'level'];
+    protected $fillable = ['warehouse_id', 'rack', 'block', 'level','active'];
 
     public static $rules = [
         'warehouse_id' 	=> 'required',
@@ -27,7 +37,7 @@ class WarehouseLocation extends Model
 
     public function scopeWarehouse($query, $warehouse)
     {
-        return $query->where('warehouse_id', '=', $warehouse);   
+        return $query->where('warehouse_id', '=', $warehouse);
     }
 
     public function items()
