@@ -41,6 +41,7 @@ $router->group([
     $router->get('user/delete/{id}', 'UserApiController@delete');
     $router->get('roles/getall', 'RoleApiController@index');
     $router->get('roles/delete/{id}', 'RoleApiController@delete');
+    $router->get('locationvariation/printsticker', 'LocationVariationController@printSticker');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');

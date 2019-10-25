@@ -19,8 +19,10 @@ use Faker\Generator as Faker;
 */
 
 $factory->define(LocationVariation::class, function (Faker $faker) {
+	$variation = Variation::all()->random();
     return [        
     	'warehouselocation_id'       => WarehouseLocation::all()->random()->id, 
-        'variation_id'      => Variation::all()->random()->id,
+        'variation_id'      => $variation->id,
+        'product_id'		=> $variation->product_id,
     ];
 });
