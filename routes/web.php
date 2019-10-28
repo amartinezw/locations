@@ -26,7 +26,6 @@ $router->group([
     $router->get('/test-client', function () {
         return 'autenticado.';
     });
-
     $router->get('/warehouses/getall', 'WarehouseController@getall');
     $router->get('warehouselocations/getracks', 'WarehouseLocationController@getracks');
     $router->get('warehouselocations/getblocks', 'WarehouseLocationController@getblocks');
