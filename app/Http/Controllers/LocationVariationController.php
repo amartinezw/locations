@@ -13,6 +13,14 @@ class LocationVariationController extends Controller
 
     protected $categoryService;
 
+    protected $tags = [
+       0   => 'Normal',
+       1   => 'Normal',
+       2   => 'Rebaja',
+       3   => 'Promoción',
+       4   => 'Liquidación'
+   ];
+
     public function __construct(Request $request)
     {                
         $this->locationVariationRepository = new LocationVariationRepository();
@@ -250,85 +258,118 @@ class LocationVariationController extends Controller
      */
     public function printSticker(Request $request)
     {        
-        $pdf = app()->make('dompdf.wrapper');
-        $product = \App\Product::find($request->product_id);
-        $variations = $product->variations;
-        $drawSKUS = '';
-        foreach ($variations as $key => $v) {
-            $drawSKUS .= '<tr>
-                            <td>'.$v->sku.'</td>
-                            <td>'.$v->name.'</td>
-                            <td>'.$v->stock.'</td>
-                            <td>'.$product->colors_es.'</td>
-                        </tr>';
-        }
-        $pdf->loadHTML(
-            '<head>
-                <style>
-                    table td {
-                        padding: 0 6px 0 0;
-                    }
-                </style>
-            </head>
-            <body>
-            <div style="width: 650px; font-family: sans-serif">
-                <div style="display:inline-block">
-                <img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>
+        if ($request->has('product_id')) {
+            $pdf = app()->make('dompdf.wrapper');
+            $product = \App\Product::find($request->product_id);
+
+            $head = '<head>
+                    <style>
+                        table td {
+                            padding: 0 6px 0 0;
+                        }
+                    </style>
+                </head>';
+            $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';        
+            $tableDescription = '<table>
+                            <tr>
+                                <td>Proveedor</td>
+                                <td>'.$product->provider.'</td>
+                            </tr>
+                            <tr>
+                                <td>Id ecom</td>
+                                <td>'.$product->id.'</td>
+                            </tr>
+                            <tr>
+                                <td>Semana</td>
+                                <td>'.$product->created_at->format("W").' - '.$product->created_at->format("Y").'</td>
+                            </tr>                        
+                            <tr>
+                                <td>Depto</td>
+                                <td>'.$product->parent_name.'</td>
+                            </tr>
+                            <tr>
+                                <td>Categoria</td>
+                                <td>'.strtolower($product->family).'</td>
+                            </tr>                        
+                            <tr>
+                                <td>Precio</td>
+                                <td>$'.$product->user_price.'</td>
+                            </tr>
+                            <tr>
+                                <td>Estatus</td>
+                                <td>'.$this->tags[$product->price_status].'</td>
+                            </tr>
+                        </table>';
+            $drawSKUS = '';
+            $variations = $product->variations;
+            foreach ($variations as $key => $v) {
+                if ($v->stock > 0 && $v->active == 1) {
+                    $drawSKUS .= '<tr>
+                                    <td>'.$v->sku.'</td>
+                                    <td>'.$v->name.'</td>
+                                    <td>'.$v->stock.'</td>
+                                    <td>'.$product->colors_es.'</td>
+                                </tr>';    
+                }
+                
+            }
+            $tableSKUS = '<table>
+                            <tr>
+                                <td>Nombre</td>
+                                <td colspan="2">'.$product->name.'</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td>SKU</td>
+                                <td>Talla</td>
+                                <td>Pzs</td>
+                                <td>Color</td>
+                            </tr>                        
+                            '.$drawSKUS.'
+                        </table>';
+            $barcode = '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5), true) . '" alt="barcode"   />';
+            if ($request->format === "landscape") {
+                $pdf->setPaper('A4', 'landscape');   
+                $format = $head.'
+                <body>
+                <div style="width: 650px; font-family: sans-serif">
+                    <div style="display:inline-block">
+                    '.$image.'
+                    </div>
+                    <div style="display:inline-block;margin-left: 20px; width: 150px">
+                        '.$tableDescription.'
+                    </div>
+                    <div style="display:inline-block;margin-left: 30px; width: 300px">
+                        '.$tableSKUS.'
+                    </div>
                 </div>
-                <div style="display:inline-block;margin-left: 20px; width: 150px">
-                    <table>
-                        <tr>
-                            <td>Proveedor</td>
-                            <td>'.$product->provider.'</td>
-                        </tr>
-                        <tr>
-                            <td>Id ecom</td>
-                            <td>'.$product->id.'</td>
-                        </tr>
-                        <tr>
-                            <td>Semana</td>
-                            <td>45</td>
-                        </tr>                        
-                        <tr>
-                            <td>Depto</td>
-                            <td>'.$product->parent_name.'</td>
-                        </tr>
-                        <tr>
-                            <td>Categoria</td>
-                            <td>'.$product->family.'</td>
-                        </tr>                        
-                        <tr>
-                            <td>Precio</td>
-                            <td>'.$product->user_price.'</td>
-                        </tr>
-                        <tr>
-                            <td>Estatus</td>
-                            <td>Rebaja</td>
-                        </tr>
-                    </table>
+                '.$barcode.'
+                </body>';
+            } else {            
+                $format = $head.'
+                <body>
+                <div style="width: 100%; font-family: sans-serif">
+                    <div style="margin-bottom: 45px">
+                    '.$barcode.'
+                    </div>
+                    <div style="display:inline-block; width: 150px">
+                        '.$tableDescription.'
+                    </div>
+                    <div style="display:inline-block;margin-left: 30px; width: 300px">
+                        '.$image.'
+                    </div>
+                    <div>
+                    '.$tableSKUS.'
+                    </div>
                 </div>
-                <div style="display:inline-block;margin-left: 30px; width: 300px">
-                    <table>
-                        <tr>
-                            <td>Nombre</td>
-                            <td colspan="2">'.$product->name.'</td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>SKU</td>
-                            <td>Talla</td>
-                            <td>Pzs</td>
-                            <td>Color</td>
-                        </tr>                        
-                        '.$drawSKUS.'
-                    </table>
-                </div>
-            </div>
-            <img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",3,70,array(5,5,5), true) . '" alt="barcode"   />
-            </body>'
-        );
-        return $pdf->stream();
+                </body>';
+            }                 
+            $pdf->loadHTML($format);
+            return $pdf->stream();
+        } else {
+            return ApiResponses::badRequest();
+        }        
     }    
 
     /**
