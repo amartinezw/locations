@@ -3,6 +3,7 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use DB;
 
 /**
  * Class WarehouseLocation
@@ -43,5 +44,16 @@ class WarehouseLocation extends Model
     public function items()
     {
         return $this->hasMany('App\LocationVariation', 'warehouselocation_id');
+    }
+
+    public function pieces()
+    {
+        
+        
+    }
+
+    public function products()
+    {
+        return $this->items()->groupBy('product_id');
     }
 }

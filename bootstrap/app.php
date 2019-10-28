@@ -31,6 +31,7 @@ $app->configure('apidoc');
 
 $app->configure('phpunit');
 $app->configure('session');
+$app->configure('dompdf');
 
 /*
 |--------------------------------------------------------------------------
@@ -114,6 +115,8 @@ $app->register(Illuminate\Session\SessionServiceProvider::class);
 $app->configure('permission');
 $app->alias('cache', \Illuminate\Cache\CacheManager::class);  // if you don't have this already
 $app->register(Spatie\Permission\PermissionServiceProvider::class);
+$app->register(\Barryvdh\DomPDF\ServiceProvider::class);
+
 /*
 |--------------------------------------------------------------------------
 | Load The Application Routes
