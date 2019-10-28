@@ -63,15 +63,15 @@ class WarehouseLocationRepository extends BaseRepository
     public function getlocations(Request $request)
     {
         $column   = 'warehouse_id';
-        $direction  = 'asc';
+        $order  = 'asc';
         if($request->column!='undefined' && !is_null($request->column)){
             $column     = $request->column;
-            $direction  = $request->direction;
+            $order  = $request->order;
         }
         if($request->q)
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$direction)->paginate($request->per_page);
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$order)->paginate($request->per_page);
         else
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$direction)->paginate($request->per_page);
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$order)->paginate($request->per_page);
 
         return ApiResponses::okObject($warehouserepo);
     }
