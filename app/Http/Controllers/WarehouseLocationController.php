@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Controllers\ApiResponses;
 use App\Warehouse;
 use App\WarehouseLocation;
-use App\Http\Controllers\ApiResponses;
 use App\Repositories\WarehouseLocationRepository;
 
 use Illuminate\Http\Request;
@@ -16,7 +16,7 @@ class WarehouseLocationController extends Controller
 {
 
     public function __construct(Request $request)
-    {        
+    {
         $this->warehouseLocationRepository = new WarehouseLocationRepository();
     }
     /**
@@ -45,14 +45,29 @@ class WarehouseLocationController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function editLocationActive(Request $request)
+    {
+        try {
+            return $this->warehouseLocationRepository->editLocationActive($request);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e->getMessage());
+        }
+    }
+
+    /**
+     * Obtener todas las ubicaciones de determinada Bodega.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getall(Request $request)
     {
         try {
             return $this->warehouseLocationRepository->getlocations($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
-        }                      
+            return ApiResponses::internalServerError($e->getMessage());
+        }
     }
 
     /**
@@ -66,8 +81,9 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getblocks($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError($e);                      
+            return ApiResponses::internalServerError();                      
         }                      
+
     }
 
     /**
@@ -82,7 +98,7 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getracks($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError($e);
+            return ApiResponses::internalServerError();
         }                      
     }
 
@@ -96,7 +112,7 @@ class WarehouseLocationController extends Controller
     {
         $v = Validator::make($request->all(), $this->warehouseLocationRepository->getRules());
         if ($v->fails()) {
-            return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();                        
+            return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();
         }
         return $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides);
     }
@@ -109,7 +125,7 @@ class WarehouseLocationController extends Controller
      */
     public function show($id)
     {
-                  
+
     }
 
     /**

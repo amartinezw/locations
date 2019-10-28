@@ -14,7 +14,7 @@ class WarehouseController extends Controller
 {
 
     public function __construct(Request $request)
-    {        
+    {
         $this->warehouseRepository = new WarehouseRepository();
     }
     /**
@@ -37,7 +37,7 @@ class WarehouseController extends Controller
     {
         $v = Validator::make($request->all(), $this->warehouseRepository->getRules());
         if ($v->fails()) {
-            return ApiResponses::badRequest();                        
+            return ApiResponses::badRequest();
         }
         return $this->warehouseRepository->create(['name' => $request->name, 'store_id' => $request->store_id]);
     }
@@ -63,10 +63,9 @@ class WarehouseController extends Controller
     {
         try {
             return response()->json($this->warehouseRepository->getall($request), 200);
-
         } catch (\Exception $e) {
-            return responder()->error('fetch_warehouse_error', $e)->respond();                        
-        }                      
+            return responder()->error('fetch_warehouse_error', $e)->respond();
+        }
     }
 
     /**
@@ -91,7 +90,7 @@ class WarehouseController extends Controller
     {
         $v = Validator::make($request->all(), $this->warehouseRepository->getRules());
         if ($v->fails()) {
-            return ApiResponses::badRequest();                        
+            return ApiResponses::badRequest();
         }
         $warehouse = Warehouse::find($request->warehouse_id);
         $this->warehouseRepository->update($warehouse, ['name' => $request->name, 'store_id' => $request->store_id]);
