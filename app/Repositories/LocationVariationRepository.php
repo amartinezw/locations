@@ -188,12 +188,6 @@ class LocationVariationRepository extends BaseRepository
 
     public function locateItem(Request $request)
     {
-    
-        $variation = Variation::where('sku', $request->sku)->first();
-        if (empty($variation)) {
-            return ApiResponses::notFound('No se encontro el SKU a ubicar.');
-        } 
-
         $warehouselocation = WarehouseLocation::where([
             'mapped_string' => $request->mapped_string,
             'warehouse_id'  => $request->warehouse_id
@@ -202,12 +196,13 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
 
-        $lvCollection = [];
-
-                
-        if ($request->withSiblings == "true") {
-            $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
-            foreach ($variationSiblings as $key => $vs) {
+        if (strlen($request->sku) > 7) {
+            $product = Product::where('internal_reference', $request->sku)->first();
+            if (empty($product)) {
+                return ApiResponses::notFound('No se encontro el estilo a ubicar.');
+            }
+            $productId = $product->id;
+            foreach ($product->variations as $key => $vs) {
                 $lvExists = LocationVariation::where([
                     'variation_id' => $vs->id,
                     'warehouselocation_id' => $warehouselocation->id
@@ -221,38 +216,64 @@ class LocationVariationRepository extends BaseRepository
                     $lvCollection[] = $lv->id;
                 }
             }
-        }
-
-        else if (isset($request->mapped_string) && isset($request->warehouse_id)) {
-
-            $locationVariation = LocationVariation::where([
-                'variation_id' => $variation->id,
-                'warehouselocation_id' => $warehouselocation->id
-            ])->first();
-             
-            if (empty($locationVariation)) {            
-                $locationVariation = new LocationVariation;                 
-                $locationVariation->warehouselocation_id = $warehouselocation->id;
-                $locationVariation->variation_id = $variation->id;
-                $locationVariation->product_id = $variation->product_id;
-                $locationVariation->save();                    
-            } else {
-                return ApiResponses::found('El producto ya se encuentra ubicado aqui');               
+        } else {
+            $variation = Variation::where('sku', $request->sku)->first();
+            $productId = $variation->product_id;
+            if (empty($variation)) {
+                return ApiResponses::notFound('No se encontro el SKU a ubicar.');
+            } 
+            $lvCollection = [];                    
+            if ($request->withSiblings == "true") {
+                $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
+                foreach ($variationSiblings as $key => $vs) {
+                    $lvExists = LocationVariation::where([
+                        'variation_id' => $vs->id,
+                        'warehouselocation_id' => $warehouselocation->id
+                    ])->first();
+                    if (empty($lvExists)) {
+                        $lv = new LocationVariation;                        
+                        $lv->warehouselocation_id = $warehouselocation->id;
+                        $lv->variation_id = $vs->id;
+                        $lv->product_id = $vs->product_id;
+                        $lv->save();
+                        $lvCollection[] = $lv->id;
+                    }
+                }
             }
+
+            else if (isset($request->mapped_string) && isset($request->warehouse_id)) {
+
+                $locationVariation = LocationVariation::where([
+                    'variation_id' => $variation->id,
+                    'warehouselocation_id' => $warehouselocation->id
+                ])->first();
+                 
+                if (empty($locationVariation)) {            
+                    $locationVariation = new LocationVariation;                 
+                    $locationVariation->warehouselocation_id = $warehouselocation->id;
+                    $locationVariation->variation_id = $variation->id;
+                    $locationVariation->product_id = $variation->product_id;
+                    $locationVariation->save();                    
+                } else {
+                    return ApiResponses::found('El producto ya se encuentra ubicado aqui');               
+                }
+            }
+
         }
 
-        if ($request->withSiblings == "true") {
+
+        if ($request->withSiblings == "true" || strlen($request->sku) > 7) {
             $responseArray = Product::with(['variations' => function($q) {
                     $q->select('id','name','sku', 'product_id');                          
                 }
             ])->select('id','name','internal_reference')
-            ->where('id', $variation->product_id)->get();
+            ->where('id', $productId)->get();
         } else {
             $responseArray = Product::with(['variations' => function($q) use ($variation) {
                 $q->select('id','name','sku', 'product_id')->where('id', $variation->id);
             }
             ])->select('id','name','internal_reference')
-            ->where('id', $variation->product_id)->get();                
+            ->where('id', $productId)->get();                
         } 
         return ApiResponses::okObject($responseArray);            
     
@@ -260,40 +281,53 @@ class LocationVariationRepository extends BaseRepository
 
     public function removeItemFromLocation(Request $request)
     {
-        $variation = Variation::where('sku', $request->sku)->first();
-        if (empty($variation)) {
-            return ApiResponses::notFound('No se encontro el SKU a remover de ubicacion.');
-        }
-
-        if ($request->withSiblings == "true") {
-            $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
-            foreach ($variationSiblings as $key => $vs) {
-                $lv = LocationVariation::where([
-                    'warehouselocation_id' => $request->warehouselocation_id,
-                    'variation_id'         => $vs->id
-                ])->first();    
-                if (!empty($lv)) {
-                    $lv->delete();
-                }            
+        if ($request->sku > 7) {
+            $product = Product::where('internal_reference', $request->sku)->first();
+            if (empty($product)) {
+                return ApiResponses::notFound('No se encontro el estilo.');
             }
+            $locationVariationsRemove = LocationVariation::where([
+                'product_id' => $product->id,
+                'warehouselocation_id' => $request->warehouselocation_id
+            ])->delete();
             return ApiResponses::ok();
         } else {
-            $locationVariation = LocationVariation::where([
-                'warehouselocation_id' => $request->warehouselocation_id,
-                'variation_id'         => $variation->id
-            ])->first();
-            
-            if (empty($locationVariation)) {
-                return ApiResponses::notFound('El producto a eliminar no se encontro en la ubicacion.');
+            $variation = Variation::where('sku', $request->sku)->first();
+            if (empty($variation)) {
+                return ApiResponses::notFound('No se encontro el SKU a remover de ubicacion.');
+            }
+
+            if ($request->withSiblings == "true") {
+                $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
+                foreach ($variationSiblings as $key => $vs) {
+                    $lv = LocationVariation::where([
+                        'warehouselocation_id' => $request->warehouselocation_id,
+                        'variation_id'         => $vs->id
+                    ])->first();    
+                    if (!empty($lv)) {
+                        $lv->delete();
+                    }            
+                }
+                return ApiResponses::ok();
             } else {
-                $responseObject = [
-                  'product_id' => $variation->product_id,
-                  'deletedSize' => $variation->name,
-                ];                
-                $locationVariation->delete();
-                return ApiResponses::ok($responseObject);
+                $locationVariation = LocationVariation::where([
+                    'warehouselocation_id' => $request->warehouselocation_id,
+                    'variation_id'         => $variation->id
+                ])->first();
+                
+                if (empty($locationVariation)) {
+                    return ApiResponses::notFound('El producto a eliminar no se encontro en la ubicacion.');
+                } else {
+                    $responseObject = [
+                      'product_id' => $variation->product_id,
+                      'deletedSize' => $variation->name,
+                    ];                
+                    $locationVariation->delete();
+                    return ApiResponses::ok($responseObject);
+                }            
             }            
         }
+
 
     }
 
