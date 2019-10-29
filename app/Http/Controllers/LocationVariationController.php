@@ -328,35 +328,37 @@ class LocationVariationController extends Controller
                             </tr>                        
                             '.$drawSKUS.'
                         </table>';
-            $barcode = '<img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5), true) . '" alt="barcode"   />';
+            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
             if ($request->format === "landscape") {
                 $pdf->setPaper('A4', 'landscape');   
                 $format = $head.'
                 <body>
-                <div style="width: 650px; font-family: sans-serif">
+                <div style="font-family: sans-serif">
                     <div style="display:inline-block">
                     '.$image.'
                     </div>
-                    <div style="display:inline-block;margin-left: 20px; width: 150px">
+                    <div style="display:inline-block;margin-left: 20px">
                         '.$tableDescription.'
                     </div>
-                    <div style="display:inline-block;margin-left: 30px; width: 300px">
+                    <div style="display:inline-block;margin-left: 30px">
                         '.$tableSKUS.'
                     </div>
-                </div>
-                '.$barcode.'
+                    <div>
+                    '.$barcode.'
+                    </div>
+                </div>                
                 </body>';
             } else {            
                 $format = $head.'
                 <body>
-                <div style="width: 100%; font-family: sans-serif">
+                <div style="font-family: sans-serif">
                     <div style="margin-bottom: 45px">
                     '.$barcode.'
                     </div>
-                    <div style="display:inline-block; width: 150px">
+                    <div style="display:inline-block;">
                         '.$tableDescription.'
                     </div>
-                    <div style="display:inline-block;margin-left: 30px; width: 300px">
+                    <div style="display:inline-block;margin-left: 30px;">
                         '.$image.'
                     </div>
                     <div>

@@ -107,7 +107,7 @@ class LocationVariationRepository extends BaseRepository
      
         $responseArray = Product::with(
             ['variations' => function($q) use ($warehouselocation) {
-                $q->select('id','product_id','name','sku')
+                $q->select('id','product_id','name','sku', 'stock', 'price')
                     ->whereHas('locations', function($q) use ($warehouselocation) {
                         $q->where('warehouselocation_id', $warehouselocation->id);            
                     });
@@ -115,7 +115,7 @@ class LocationVariationRepository extends BaseRepository
              'images' => function($q) {
                  $q->select('id','file', 'product_id')->groupBy('product_id');
              }])
-        ->select('id','name','internal_reference')
+        ->select('id','name','internal_reference', 'provider', 'colors_es')
         ->whereHas('locations', function($q) use ($warehouselocation) {
             $q->where('warehouselocation_id', $warehouselocation->id);
         })->paginate($request->per_page ?: 20)->toArray();

@@ -72,7 +72,7 @@ class WarehouseLocationRepository extends BaseRepository
         $direction  = 'asc';
         if($request->column!='undefined' && !is_null($request->column)){
             $column     = $request->column;
-            $direction  = $request->direction;
+            $direction  = $request->order;
         }
         if($request->q)
             $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$direction)->paginate($request->per_page);
@@ -113,7 +113,7 @@ class WarehouseLocationRepository extends BaseRepository
             }
             if ($request->has('family')) {
                 $where[] = ['family', '=', $request->family];
-            }
+            }            
         }
 
         $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {            
