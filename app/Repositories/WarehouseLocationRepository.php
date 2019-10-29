@@ -69,15 +69,15 @@ class WarehouseLocationRepository extends BaseRepository
     public function getlocations(Request $request)
     {
         $column   = 'warehouse_id';
-        $direction  = 'asc';
+        $order  = 'asc';
         if($request->column!='undefined' && !is_null($request->column)){
             $column     = $request->column;
-            $direction  = $request->order;
+            $order  = $request->order;
         }
         if($request->q)
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$direction)->paginate($request->per_page);
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$order)->paginate($request->per_page);
         else
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$direction)->paginate($request->per_page);
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$order)->paginate($request->per_page);
 
         return ApiResponses::okObject($warehouserepo);
     }
@@ -116,11 +116,11 @@ class WarehouseLocationRepository extends BaseRepository
             }            
         }
 
-        $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {            
+        $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {
             $q->select('product_id')->whereHas('product', function($q) use ($where) {
                 $q->where($where);
             });
-            $q->groupBy('product_id');        
+            $q->groupBy('product_id');
         }])->get();
         foreach ($racks as $rack) {
             $rack->total_items = count($rack->items);
@@ -137,7 +137,7 @@ class WarehouseLocationRepository extends BaseRepository
     public function getblocks(Request $request)
     {
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
-                    ->withCount('items')                    
+                    ->withCount('items')
                     ->where('rack', $request->rack)
                     ->where('warehouse_id', $request->warehouse_id)
                     ->orderBy('block', 'ASC')
