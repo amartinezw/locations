@@ -98,12 +98,8 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getracks($request);
 
         } catch (\Exception $e) {
-<<<<<<<<< Temporary merge branch 1
-            return ApiResponses::internalServerError($e);
-        }                      
-=========
             return ApiResponses::internalServerError();
-        }                      
+        }
     }
 
     /**
