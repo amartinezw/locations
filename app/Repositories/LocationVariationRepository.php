@@ -153,18 +153,26 @@ class LocationVariationRepository extends BaseRepository
 
     public function getLocationsOfProduct(Request $request)
     {        
-        $product = Product::with(['variations' => function($q) {
-            $q->select('id','name','sku', 'product_id');
-        }, 'variations.locations' => function($q) {
-            $q->select('warehouselocation_id','variation_id');
-        }, 'variations.locations.warehouselocation' => function($q) {
-            $q->select('id', 'mapped_string');
-        },'firstimg:product_id,file'])
-            ->select('id','name','internal_reference')
-            ->whereHas('variations', function($q) {
-                $q->whereHas('locations');
-            })->where('id', $request->id)
-            ->get();
+        if (is_numeric($request->sku)) {
+            $where = [];
+            if (strlen($request->sku) > 7) {
+                $where = ['internal_reference' => $request->sku];            
+            } else {
+                $variation = Variation::where('sku', $request->sku)->first();
+                $where = ['id' => $variation->product_id];
+            }            
+            $product = Product::where($where)
+            ->select('id','name','provider','internal_reference','family', 'parent_name')
+            ->with([
+                'locations' => function($q) {
+                    $q->select('id','product_id','warehouselocation_id')->groupBy('warehouselocation_id');
+                },
+                'locations.warehouselocation:id,mapped_string', 
+                'variations:id,name,sku,stock,product_id',
+                'firstimg:id,product_id,file'])
+            ->first();
+        }
+
 
         return ApiResponses::okObject($product);
     }
@@ -218,10 +226,10 @@ class LocationVariationRepository extends BaseRepository
             }
         } else {
             $variation = Variation::where('sku', $request->sku)->first();
-            $productId = $variation->product_id;
             if (empty($variation)) {
                 return ApiResponses::notFound('No se encontro el SKU a ubicar.');
             } 
+            $productId = $variation->product_id;
             $lvCollection = [];                    
             if ($request->withSiblings == "true") {
                 $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
@@ -281,7 +289,7 @@ class LocationVariationRepository extends BaseRepository
 
     public function removeItemFromLocation(Request $request)
     {
-        if ($request->sku > 7) {
+        if (strlen($request->sku) > 7) {
             $product = Product::where('internal_reference', $request->sku)->first();
             if (empty($product)) {
                 return ApiResponses::notFound('No se encontro el estilo.');

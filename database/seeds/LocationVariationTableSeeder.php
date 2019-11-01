@@ -11,6 +11,17 @@ class LocationVariationTableSeeder extends Seeder
      */
     public function run()
     {
-        factory(App\LocationVariation::class, 100)->create();
+    	$RandomProducts = App\Product::inRandomOrder()->limit(100)->get();
+    	$RandomLocations = App\WarehouseLocation::inRandomOrder()->limit(100)->get();    	
+    	foreach($RandomProducts as $k => $prod) {
+    		foreach ($prod->variations as $key => $var) {
+		        factory(App\LocationVariation::class)->create([
+		        	'warehouselocation_id' => $RandomLocations[$k]->id,
+		        	'variation_id' => $var->id,
+		        	'product_id' => $prod->id
+		        ]);
+    			
+    		}
+    	}
     }
 }
