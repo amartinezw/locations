@@ -162,7 +162,7 @@ class LocationVariationRepository extends BaseRepository
                 $where = ['id' => $variation->product_id];
             }            
             $product = Product::where($where)
-            ->select('id','name','provider','internal_reference','family', 'parent_name')
+            ->select('id','name','provider','internal_reference','family', 'parent_name', 'colors_es')
             ->with([
                 'locations' => function($q) {
                     $q->select('id','product_id','warehouselocation_id')->groupBy('warehouselocation_id');
@@ -298,6 +298,9 @@ class LocationVariationRepository extends BaseRepository
                 'product_id' => $product->id,
                 'warehouselocation_id' => $request->warehouselocation_id
             ])->delete();
+            if (empty($locationVariationsRemove)) {
+                return ApiResponses::notFound('No se encontró el estilo en la ubicacion.');
+            }
             return ApiResponses::ok();
         } else {
             $variation = Variation::where('sku', $request->sku)->first();

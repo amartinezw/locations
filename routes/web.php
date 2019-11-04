@@ -37,6 +37,7 @@ $router->group([
     $router->get('locationvariation/getlocationsofproduct', 'LocationVariationController@getLocationsOfProduct');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
     $router->get('user/getusers', 'UserApiController@index');
+    $router->get('user/getprofile', 'UserApiController@getProfile');
     $router->get('user/delete/{id}', 'UserApiController@delete');
     $router->get('roles/getall', 'RoleApiController@index');
     $router->get('roles/delete/{id}', 'RoleApiController@delete');
