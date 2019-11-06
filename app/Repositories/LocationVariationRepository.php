@@ -53,7 +53,8 @@ class LocationVariationRepository extends BaseRepository
             $responseArray = Product::with(
                 ['variations' => function($q) {
                     $q->select('id','product_id','name','sku', 'stock', 'price');
-                },                 
+                },
+                 'variations.color:id,name',                 
                  'images' => function($q) {
                      $q->select('id','file', 'product_id')->groupBy('product_id');
                  }])
@@ -107,11 +108,12 @@ class LocationVariationRepository extends BaseRepository
      
         $responseArray = Product::with(
             ['variations' => function($q) use ($warehouselocation) {
-                $q->select('id','product_id','name','sku', 'stock', 'price')
+                $q->select('id','product_id','name','sku', 'stock', 'price', 'color_id')
                     ->whereHas('locations', function($q) use ($warehouselocation) {
                         $q->where('warehouselocation_id', $warehouselocation->id);            
                     });
-            }, 
+            },
+             'variations.color:id,name',
              'images' => function($q) {
                  $q->select('id','file', 'product_id')->groupBy('product_id');
              }])
@@ -133,6 +135,21 @@ class LocationVariationRepository extends BaseRepository
 
     public function getLocationsOfItem(Request $request)
     {        
+        if ($request->has('skus')) {
+            $skuArray = $request->skus;            
+            $variations = Variation::select('id', 'sku')->whereIn('sku',$skuArray)->get();
+            $response = [];
+            foreach ($variations as $k => $var) {
+                $locations = [];
+                foreach ($var->locations as $y => $loc) {
+                    $locations[] = $loc->warehouselocation->mapped_string;
+                }
+                $response[] = ["sku" => $var->sku, "locations" => $locations];
+            }
+            $skus = [];
+            $skus = ["skus" => $response];
+            return ApiResponses::okObject($skus);
+        }
         $variation = Variation::where('sku', $request->sku)->first();
         $locationvariations = LocationVariation::with('warehouselocation')
         ->whereHas('variation', function($q) use ($request, $variation) {

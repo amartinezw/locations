@@ -250,6 +250,8 @@ class LocationVariationController extends Controller
         }                      
     }
 
+    
+
     /**
      * Imprime etiqueta de producto
      *
@@ -308,7 +310,7 @@ class LocationVariationController extends Controller
                                     <td>'.$v->sku.'</td>
                                     <td>'.$v->name.'</td>
                                     <td>'.$v->stock.'</td>
-                                    <td>'.$product->colors_es.'</td>
+                                    <td>'.$v->color->name.'</td>
                                 </tr>';    
                 }
                 
