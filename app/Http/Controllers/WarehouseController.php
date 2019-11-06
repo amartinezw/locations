@@ -12,6 +12,7 @@ use Validator;
 
 class WarehouseController extends Controller
 {
+    protected $warehouseRepository;
 
     public function __construct(Request $request)
     {
@@ -84,13 +85,14 @@ class WarehouseController extends Controller
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
+     * x
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request)
     {
         $v = Validator::make($request->all(), $this->warehouseRepository->getRules());
         if ($v->fails()) {
-            return ApiResponses::badRequest();
+            return ApiResponses::badRequest("La información recibida no es valida.");
         }
         $warehouse = Warehouse::find($request->warehouse_id);
         $this->warehouseRepository->update($warehouse, ['name' => $request->name, 'store_id' => $request->store_id]);

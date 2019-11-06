@@ -22,7 +22,7 @@ class LocationVariationController extends Controller
    ];
 
     public function __construct(Request $request)
-    {                
+    {
         $this->locationVariationRepository = new LocationVariationRepository();
     }
     /**
@@ -43,7 +43,7 @@ class LocationVariationController extends Controller
      */
     public function store(Request $request)
     {
-        
+
     }
 
     /**
@@ -59,7 +59,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }  
+        }
     }
 
     /**
@@ -75,7 +75,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }  
+        }
     }
 
     /**
@@ -95,8 +95,8 @@ class LocationVariationController extends Controller
             return $respuesta;
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError($e);                        
-        }  
+            return ApiResponses::internalServerError($e);
+        }
     }
     /**
      * Ubica el item en la determinada ubicacion utilizando la web.
@@ -115,7 +115,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
-        }  
+        }
     }
 
     /**
@@ -135,7 +135,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
-        }  
+        }
     }
 
     /**
@@ -154,8 +154,8 @@ class LocationVariationController extends Controller
             return $this->locationVariationRepository->moveItem($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();                   
-        }  
+            return ApiResponses::internalServerError();
+        }
     }
 
     /**
@@ -174,8 +174,8 @@ class LocationVariationController extends Controller
             return $this->locationVariationRepository->moveItem($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();                     
-        }  
+            return ApiResponses::internalServerError();
+        }
     }
 
     /**
@@ -191,7 +191,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }                      
+        }
     }
 
     /**
@@ -211,7 +211,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }                      
+        }
     }
 
     /**
@@ -231,7 +231,7 @@ class LocationVariationController extends Controller
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }                      
+        }
     }
 
     /**
@@ -241,13 +241,13 @@ class LocationVariationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function getSummary(Request $request)
-    {        
+    {
         try {
             return $this->locationVariationRepository->getSummary($request);
 
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
-        }                      
+        }
     }
 
     /**
@@ -257,7 +257,7 @@ class LocationVariationController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function printSticker(Request $request)
-    {        
+    {
         if ($request->has('product_id')) {
             $pdf = app()->make('dompdf.wrapper');
             $product = \App\Product::find($request->product_id);
@@ -269,7 +269,7 @@ class LocationVariationController extends Controller
                         }
                     </style>
                 </head>';
-            $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';        
+            $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';
             $tableDescription = '<table>
                             <tr>
                                 <td>Proveedor</td>
@@ -309,9 +309,9 @@ class LocationVariationController extends Controller
                                     <td>'.$v->name.'</td>
                                     <td>'.$v->stock.'</td>
                                     <td>'.$product->colors_es.'</td>
-                                </tr>';    
+                                </tr>';
                 }
-                
+
             }
             $tableSKUS = '<table>
                             <tr>
@@ -329,8 +329,9 @@ class LocationVariationController extends Controller
                             '.$drawSKUS.'
                         </table>';
             $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
-            if ($request->format === "landscape") {
-                $pdf->setPaper('A4', 'landscape');   
+            //FIXME $request->format changed to $request->get('format')
+            if ($request->get('format') === "landscape") {
+                $pdf->setPaper('A4', 'landscape');
                 $format = $head.'
                 <body>
                 <div style="font-family: sans-serif">
@@ -348,7 +349,7 @@ class LocationVariationController extends Controller
                     </div>
                 </div>                
                 </body>';
-            } else {            
+            } else {
                 $format = $head.'
                 <body>
                 <div style="font-family: sans-serif">
@@ -366,13 +367,13 @@ class LocationVariationController extends Controller
                     </div>
                 </div>
                 </body>';
-            }                 
+            }
             $pdf->loadHTML($format);
             return $pdf->stream();
         } else {
             return ApiResponses::badRequest();
-        }        
-    }    
+        }
+    }
 
     /**
      * Display the specified resource.
