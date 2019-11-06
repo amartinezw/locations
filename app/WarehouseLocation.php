@@ -49,7 +49,6 @@ class WarehouseLocation extends Model
     public function pieces()
     {
         
-        
     }
 
     public function products()

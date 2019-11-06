@@ -37,11 +37,15 @@ $router->group([
     $router->get('locationvariation/getlocationsofproduct', 'LocationVariationController@getLocationsOfProduct');
     $router->get('locationvariation/getitemsinlocation', 'LocationVariationController@getItemsInLocation');
     $router->get('user/getusers', 'UserApiController@index');
+    $router->get('user/getprofile', 'UserApiController@getProfile');
     $router->get('user/delete/{id}', 'UserApiController@delete');
     $router->get('roles/getall', 'RoleApiController@index');
     $router->get('roles/delete/{id}', 'RoleApiController@delete');
     $router->get('locationvariation/printsticker', 'LocationVariationController@printSticker');
     $router->get('stores/getallstores', 'StoreController@getAllForSelect');
+    $router->get('categories/parent', 'CategoryApiController@getParentCategories');
+    $router->get('categories/childs', 'CategoryApiController@getChildCategories');
+    $router->get('categories/child/{parent_id}', 'CategoryApiController@getCategoriesOfParent');
 
     $router->post('/warehouses/store', 'WarehouseController@store');
     $router->post('/warehouses/update', 'WarehouseController@update');

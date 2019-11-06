@@ -81,7 +81,7 @@ class WarehouseLocationController extends Controller
             return $this->warehouseLocationRepository->getblocks($request);
 
         } catch (\Exception $e) {
-            return ApiResponses::internalServerError();
+            return ApiResponses::internalServerError($e);
         }
 
     }

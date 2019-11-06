@@ -71,7 +71,7 @@ class WarehouseLocationRepository extends BaseRepository
         $column   = 'warehouse_id';
         $order  = 'asc';
         if($request->column!='undefined' && !is_null($request->column)){
-            $column     = $request->column;
+            $column = $request->column;
             $order  = $request->order;
         }
         if($request->q)
@@ -136,6 +136,18 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getblocks(Request $request)
     {
+        // $w = WarehouseLocation::where('rack_id', 1)
+        //         ->orderBy('block', 'ASC')
+        //         ->orderBy('level', 'ASC')
+        //         ->get();
+        // $r = [];
+        // foreach ($w as $key => $c) {
+        //     $d = 0;
+        //     foreach ($c->items as $key => $x) {
+        //         $d += $x->variation->stock;
+        //     }
+        //     $r[] = ['mapped_string' => $c->mapped_string, 'stock' => $d];
+        // }
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
                     ->withCount('items')
                     ->where('rack', $request->rack)

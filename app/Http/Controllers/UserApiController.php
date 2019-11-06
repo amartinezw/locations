@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Http\Controllers\ApiResponses;
 use Auth;
 use Log;
 use Validator;
@@ -203,6 +204,22 @@ class UserApiController extends Controller
                 'code' => 500,
                 'message' => $e->getMessage(),
             ])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * @param Request $oRequest
+     * @param $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getProfile(Request $oRequest)
+    {
+        try {            
+            $usuario = User::with('roles')->select('id','name','email')->where('id' , $oRequest->user()->id)->first();
+            return ApiResponses::okObject($usuario);
+
+        } catch (\Exception $e) {
+            return ApiResponses::internalServerError($e);
         }
     }
 
