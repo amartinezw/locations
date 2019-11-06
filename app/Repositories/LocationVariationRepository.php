@@ -50,16 +50,16 @@ class LocationVariationRepository extends BaseRepository
                 $where[] = ['department', '=', $request->department];
             }
         }
-        if ($request->has('parentCategory') || $request->has('parentCategory') &&  $request->has('childCategory')){
+        if ($request->has('parentCategory') || ($request->has('parentCategory') &&  $request->has('childCategory'))){
             if ($request->has('parentCategory')) {
                 $category = Category::find($request->parentCategory);
-                $where[] = ['parent_name', 'LIKE', '%'.$category->name.'%'];
+                $where[] = ['parent_name', '=', $category->name];
             }
             if ($request->has('parentCategory') &&  $request->has('childCategory')) {
                 $category = Category::find($request->parentCategory);
                 $categoryChild = Category::find($request->childCategory);
-                $where[] = ['parent_name', 'LIKE', '%'.$category->name.'%'];
-                $where[] = ['category_name', 'LIKE', '%'.$categoryChild->name.'%'];
+                $where[] = ['parent_name', '=', $category->name];
+                $where[] = ['category_name', '=', $categoryChild->name];
             }
         }
         if ($request->has('notLocated')) {
