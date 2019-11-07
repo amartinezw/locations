@@ -154,21 +154,34 @@ class WarehouseLocationRepository extends BaseRepository
     }
 
     public function getblocks(Request $request)
-    {
-        // $w = WarehouseLocation::where('rack_id', 1)
-        //         ->orderBy('block', 'ASC')
-        //         ->orderBy('level', 'ASC')
-        //         ->get();
-        // $r = [];
-        // foreach ($w as $key => $c) {
-        //     $d = 0;
-        //     foreach ($c->items as $key => $x) {
-        //         $d += $x->variation->stock;
-        //     }
-        //     $r[] = ['mapped_string' => $c->mapped_string, 'stock' => $d];
-        // }
-        $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
-                    ->withCount('items')
+    {        
+        $where = [];
+        if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
+            if ($request->has('product')) {
+                $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+            }
+            if ($request->has('active')) {
+                $where[] = ['activation_disabled', '=', $request->active];
+            }
+            if ($request->has('category') || ( $request->has('category') && $request->has('subcategory') )) {
+                if ($request->has('category') && $request->category > 0) {
+                    $category = Category::find($request->category);
+                    $where[] = ['parent_name', '=', $category->name];
+                }
+                if (($request->has('category') && $request->category > 0) &&  ($request->has('subcategory') && $request->subcategory > 0) ) {
+                    $category = Category::find($request->category);
+                    $categoryChild = Category::find($request->subcategory);
+                    $where[] = ['parent_name', '=', $category->name];
+                    $where[] = ['category_name', '=', $categoryChild->name];
+                }
+            }
+        }
+        $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')                   
+                    ->withCount(['items' => function($q) use ($where) {
+                        $q->whereHas('product', function($q) use ($where) {
+                            $q->where($where);
+                        });
+                    }])
                     ->where('rack', $request->rack)
                     ->where('warehouse_id', $request->warehouse_id)
                     ->orderBy('block', 'ASC')
