@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Category;
 use App\Warehouse;
 use App\Rack;
 use App\WarehouseLocation;
@@ -102,36 +103,54 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getracks(Request $request)
     {
-        $warehouse = $request->warehouse_id;
-        $where = [];
-        if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('family')) {
-            if ($request->has('name')) {
-                $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
+        try {
+            $warehouse = $request->warehouse_id;
+            $where = [];
+            if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
+                if ($request->has('product')) {
+                    $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+                }
+                if ($request->has('active')) {
+                    $where[] = ['activation_disabled', '=', $request->active];
+                }
+                if ($request->has('category') || ( $request->has('category') && $request->has('subcategory') )) {
+                    if ($request->has('category') && $request->category > 0) {
+                        $category = Category::find($request->category);
+                        $where[] = ['parent_name', '=', $category->name];
+                    }
+                    if (($request->has('category') && $request->category > 0) &&  ($request->has('subcategory') && $request->subcategory > 0) ) {
+                        $category = Category::find($request->category);
+                        $categoryChild = Category::find($request->subcategory);
+                        $where[] = ['parent_name', '=', $category->name];
+                        $where[] = ['category_name', '=', $categoryChild->name];
+                    }
+                }
             }
-            if ($request->has('active')) {
-                $where[] = ['activation_disabled', '=', $request->active];
+
+            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {
+                $q->select('product_id')->whereHas('product', function($q) use ($where) {
+                    $q->where($where);
+                });
+                $q->groupBy('product_id');
+            }])->get();
+            foreach ($racks as $rack) {
+                $rack->total_items = count($rack->items);
+                unset($rack->items);
             }
-            if ($request->has('family')) {
-                $where[] = ['family', '=', $request->family];
-            }            
+
+            if (empty($racks)) {
+                return ApiResponses::badRequest('La bodega no existe o no tiene ubicaciones mapeadas.');
+            }
+
+            return ApiResponses::okObject($racks);
+        } catch (\Exception $e) {
+            return response()->json([
+                'type' => 'error',
+                'code' => 500,
+                'message' => $e->getMessage()
+            ]);
         }
 
-        $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {
-            $q->select('product_id')->whereHas('product', function($q) use ($where) {
-                $q->where($where);
-            });
-            $q->groupBy('product_id');
-        }])->get();
-        foreach ($racks as $rack) {
-            $rack->total_items = count($rack->items);
-            unset($rack->items);
-        }
-
-        if (empty($racks)) {
-            return ApiResponses::badRequest('La bodega no existe o no tiene ubicaciones mapeadas.');
-        }
-
-        return ApiResponses::okObject($racks);
     }
 
     public function getblocks(Request $request)
