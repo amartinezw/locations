@@ -113,7 +113,7 @@ class WarehouseLocationRepository extends BaseRepository
                 if ($request->has('product')) {
                     $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
                 }
-                if ($request->has('active') && $request->active >= 0) {
+                if ($request->has('active') && $request->active > -1) {
                     $where[] = ['activation_disabled', '=', $request->active];
                 }
                 if ($request->has('category') && $request->category > 0) {

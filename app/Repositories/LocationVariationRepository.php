@@ -39,6 +39,8 @@ class LocationVariationRepository extends BaseRepository
     {
          $where = [];
          $whereHas = [];
+         $whereCategory = [];
+         $onlyParent = false;
         if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('department')) {
             if ($request->has('name')) {
                 $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
@@ -46,8 +48,15 @@ class LocationVariationRepository extends BaseRepository
             if ($request->has('active')) {
                 $where[] = ['activation_disabled', '=', $request->active];
             }
+
             if ($request->has('department')) {
-                $where[] = ['department', '=', $request->department];
+                if ($request->department > 0 && !$request->subcategory > 0) {
+                    $onlyParent = true;
+                    $whereCategory[] = ['id', '=', $request->department];
+                } else if ($request->department > 0 && $request->subcategory > 0) {
+                    $onlyParent = false;
+                    $whereCategory[] = ['id', '=', $request->subcategory];
+                }
             }
         }
         if ($request->has('notLocated')) {
@@ -61,6 +70,19 @@ class LocationVariationRepository extends BaseRepository
                  }])
             ->select('id','name','internal_reference', 'provider', 'colors_es', 'family', 'parent_name')
             ->where($where)
+            ->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                if ($onlyParent === true) {
+                    $q->whereHas('category', function($q) use ($whereCategory) {
+                        $q->whereHas('parent', function ($q) use ($whereCategory) {
+                            $q->where($whereCategory);
+                        });
+                    });
+                } else {
+                    $q->whereHas('category', function($q) use ($whereCategory) {
+                        $q->where($whereCategory);
+                    });
+                }
+            })
             ->whereHas('variations', function($q) use ($request) {
                 if ($request->has('sku')) {
                     $q->where('sku', $request->sku);
@@ -84,6 +106,19 @@ class LocationVariationRepository extends BaseRepository
                  }])
             ->select('id','name','internal_reference', 'provider', 'colors_es', 'family', 'parent_name')
             ->where($where)
+            ->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                if ($onlyParent === true) {
+                    $q->whereHas('category', function($q) use ($whereCategory) {
+                        $q->whereHas('parent', function ($q) use ($whereCategory) {
+                            $q->where($whereCategory);
+                        });
+                    });
+                } else {
+                    $q->whereHas('category', function($q) use ($whereCategory) {
+                        $q->where($whereCategory);
+                    });
+                }
+            })
             ->whereHas('locations')
             ->whereHas('variations', function($q) use ($request) {
                 if ($request->has('sku')) {
@@ -91,34 +126,6 @@ class LocationVariationRepository extends BaseRepository
                 }
             })
             ->paginate($request->per_page ?: 20)->toArray();
-            /*$responseArray = Product::with(
-                ['variations' => function($q) {
-                    $q->select('id','product_id','name','sku', 'stock', 'price')
-                        ->whereHas('locations');
-                },
-                 'locations' => function($q) {
-                    $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
-                    $q->whereHas('warehouselocations', function($q) {
-                       $q->where('rack_id', $request->rack);
-                    });
-                 },
-                 'locations.warehouselocation' => function($q) {
-                    $q->select('id','mapped_string', 'rack')->where('rack_id', $request->rack);
-                 },
-                 'variations.locations:id,variation_id,warehouselocation_id',
-                 'variations.locations.warehouselocation:id,mapped_string',
-                 'images' => function($q) {
-                     $q->select('id','file', 'product_id')->groupBy('product_id');
-                 }])
-            ->select('id','name','internal_reference', 'provider', 'colors_es', 'family', 'parent_name')
-            ->where($where)
-            ->whereHas('locations')
-            ->whereHas('variations', function($q) use ($request) {
-                if ($request->has('sku')) {
-                    $q->where('sku', $request->sku);
-                }
-            })
-            ->paginate($request->per_page ?: 20)->toArray();*/
         }
 
         return ApiResponses::okObject($responseArray);
