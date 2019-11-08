@@ -104,7 +104,6 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getracks(Request $request)
     {
-
         try {
             $where = [];
             $whereCategory = [];
@@ -112,6 +111,9 @@ class WarehouseLocationRepository extends BaseRepository
             if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
                 if ($request->has('product')) {
                     $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+                }
+                if ($request->has('sku')) {
+                    $where[] = ['internal_reference', 'LIKE', '%'.$request->sku.'%'];
                 }
                 if ($request->has('active') && $request->active >= 0) {
                     $where[] = ['activation_disabled', '=', $request->active];
@@ -177,6 +179,9 @@ class WarehouseLocationRepository extends BaseRepository
         if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
             if ($request->has('product')) {
                 $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+            }
+            if ($request->has('sku')) {
+                $where[] = ['internal_reference', 'LIKE', '%'.$request->sku.'%'];
             }
             if ($request->has('active') && $request->active >= 0) {
                 $where[] = ['activation_disabled', '=', $request->active];
