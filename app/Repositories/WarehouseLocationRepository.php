@@ -2,9 +2,11 @@
 
 namespace App\Repositories;
 
+use App\Category;
 use App\Warehouse;
 use App\Rack;
 use App\WarehouseLocation;
+use function foo\func;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -102,60 +104,120 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getracks(Request $request)
     {
-        $warehouse = $request->warehouse_id;
-        $where = [];
-        if ($request->has('name') || $request->has('sku') || $request->has('active') || $request->has('family')) {
-            if ($request->has('name')) {
-                $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
+
+        try {
+            $where = [];
+            $whereCategory = [];
+            $onlyParent = false;
+            if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
+                if ($request->has('product')) {
+                    $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+                }
+                if ($request->has('active') && $request->active >= 0) {
+                    $where[] = ['activation_disabled', '=', $request->active];
+                }
+                if ($request->has('category') && $request->category > 0) {
+                    if (!$request->subcategory > 0 ) {
+                        $onlyParent = true;
+                    } else {
+                        $onlyParent = false;
+                    }
+                    if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                        $whereCategory[] = ['id', '=', $request->category];
+                    }else {
+                        $whereCategory[] = ['id', '=', $request->subcategory];
+                    }
+                }
             }
-            if ($request->has('active')) {
-                $where[] = ['activation_disabled', '=', $request->active];
+
+            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where, $whereCategory, $onlyParent) {
+                $q->select('product_id')->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent) {
+                    $q->where($where);
+                    $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                        if ($onlyParent === true) {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->whereHas('parent', function ($q) use ($whereCategory) {
+                                    $q->where($whereCategory);
+                                });
+                            });
+                        } else {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->where($whereCategory);
+                            });
+                        }
+                    });
+                });
+                $q->groupBy('product_id');
+            }])->get();
+            foreach ($racks as $rack) {
+                $rack->total_items = count($rack->items);
+                unset($rack->items);
             }
-            if ($request->has('family')) {
-                $where[] = ['family', '=', $request->family];
-            }            
+
+            if (empty($racks)) {
+                return ApiResponses::badRequest('La bodega no existe o no tiene ubicaciones mapeadas.');
+            }
+
+            return ApiResponses::okObject($racks);
+        } catch (\Exception $e) {
+            return response()->json([
+                'type' => 'error',
+                'code' => 500,
+                'message' => $e->getMessage()
+            ]);
         }
 
-        $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {
-            $q->select('product_id')->whereHas('product', function($q) use ($where) {
-                $q->where($where);
-            });
-            $q->groupBy('product_id');
-        }])->get();
-        foreach ($racks as $rack) {
-            $rack->total_items = count($rack->items);
-            unset($rack->items);
-        }
-
-        if (empty($racks)) {
-            return ApiResponses::badRequest('La bodega no existe o no tiene ubicaciones mapeadas.');
-        }
-
-        return ApiResponses::okObject($racks);
     }
 
     public function getblocks(Request $request)
     {
-        // $w = WarehouseLocation::where('rack_id', 1)
-        //         ->orderBy('block', 'ASC')
-        //         ->orderBy('level', 'ASC')
-        //         ->get();
-        // $r = [];
-        // foreach ($w as $key => $c) {
-        //     $d = 0;
-        //     foreach ($c->items as $key => $x) {
-        //         $d += $x->variation->stock;
-        //     }
-        //     $r[] = ['mapped_string' => $c->mapped_string, 'stock' => $d];
-        // }
+        $where = [];
+        $whereCategory = [];
+        $onlyParent = false;
+        if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
+            if ($request->has('product')) {
+                $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+            }
+            if ($request->has('active') && $request->active >= 0) {
+                $where[] = ['activation_disabled', '=', $request->active];
+            }
+            if ($request->has('category') && $request->category > 0) {
+                if (!$request->subcategory > 0 ) {
+                    $onlyParent = true;
+                } else {
+                    $onlyParent = false;
+                }
+                if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                    $whereCategory[] = ['id', '=', $request->category];
+                }else {
+                    $whereCategory[] = ['id', '=', $request->subcategory];
+                }
+            }
+        }
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
-                    ->withCount('items')
-                    ->where('rack', $request->rack)
-                    ->where('warehouse_id', $request->warehouse_id)
-                    ->orderBy('block', 'ASC')
-                    ->orderBy('level', 'ASC')
-                    ->get();
+            ->withCount(['items' => function($q) use ($where, $whereCategory, $onlyParent) {
+                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent) {
+                    $q->where($where);
+                    $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                        if ($onlyParent === true) {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->whereHas('parent', function ($q) use ($whereCategory) {
+                                    $q->where($whereCategory);
+                                });
+                            });
+                        } else {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->where($whereCategory);
+                            });
+                        }
+                    });
+                });
+            }])
+            ->where('rack', $request->rack)
+            ->where('warehouse_id', $request->warehouse_id)
+            ->orderBy('block', 'ASC')
+            ->orderBy('level', 'ASC')
+            ->get();
         return ApiResponses::okObject($blocks);
     }
-
 }
