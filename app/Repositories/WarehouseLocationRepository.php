@@ -104,7 +104,6 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getracks(Request $request)
     {
-
         try {
             $where = [];
             $whereCategory = [];
