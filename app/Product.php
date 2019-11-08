@@ -21,9 +21,18 @@ class Product extends Model
         return $this->hasMany('App\Variation')->orderBy('id');
     }
 
+    public function categoryProduct()
+    {
+        return $this->hasMany('App\CategoryProduct');
+    }
+
     public function firstimg()
     {
         return $this->images()->take(1);
+    }
+    public function parentCategory()
+    {
+        return $this->hasMany('App\CategoryProduct')->with('category')->with('category.parent');
     }
 
 }

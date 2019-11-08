@@ -6,6 +6,7 @@ use App\Category;
 use App\Warehouse;
 use App\Rack;
 use App\WarehouseLocation;
+use function foo\func;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -103,33 +104,48 @@ class WarehouseLocationRepository extends BaseRepository
 
     public function getracks(Request $request)
     {
+
         try {
-            $warehouse = $request->warehouse_id;
             $where = [];
+            $whereCategory = [];
+            $onlyParent = false;
             if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
                 if ($request->has('product')) {
                     $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
                 }
-                if ($request->has('active')) {
+                if ($request->has('active') && $request->active >= 0) {
                     $where[] = ['activation_disabled', '=', $request->active];
                 }
-                if ($request->has('category') || ( $request->has('category') && $request->has('subcategory') )) {
-                    if ($request->has('category') && $request->category > 0) {
-                        $category = Category::find($request->category);
-                        $where[] = ['parent_name', '=', $category->name];
+                if ($request->has('category') && $request->category > 0) {
+                    if (!$request->subcategory > 0 ) {
+                        $onlyParent = true;
+                    } else {
+                        $onlyParent = false;
                     }
-                    if (($request->has('category') && $request->category > 0) &&  ($request->has('subcategory') && $request->subcategory > 0) ) {
-                        $category = Category::find($request->category);
-                        $categoryChild = Category::find($request->subcategory);
-                        $where[] = ['parent_name', '=', $category->name];
-                        $where[] = ['category_name', '=', $categoryChild->name];
+                    if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                        $whereCategory[] = ['id', '=', $request->category];
+                    }else {
+                        $whereCategory[] = ['id', '=', $request->subcategory];
                     }
                 }
             }
 
-            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where) {
-                $q->select('product_id')->whereHas('product', function($q) use ($where) {
+            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where, $whereCategory, $onlyParent) {
+                $q->select('product_id')->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent) {
                     $q->where($where);
+                    $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                        if ($onlyParent === true) {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->whereHas('parent', function ($q) use ($whereCategory) {
+                                    $q->where($whereCategory);
+                                });
+                            });
+                        } else {
+                            $q->whereHas('category', function($q) use ($whereCategory) {
+                                $q->where($whereCategory);
+                            });
+                        }
+                    });
                 });
                 $q->groupBy('product_id');
             }])->get();
@@ -179,7 +195,12 @@ class WarehouseLocationRepository extends BaseRepository
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')                   
                     ->withCount(['items' => function($q) use ($where) {
                         $q->whereHas('product', function($q) use ($where) {
-                            $q->where($where);
+
+                            $q->whereHas('category_product', function ($q) use ($where) {
+                                $q->where();
+                            });
+
+                            //  $q->where($where);
                         });
                     }])
                     ->where('rack', $request->rack)
