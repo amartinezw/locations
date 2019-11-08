@@ -11,6 +11,11 @@ class Variation extends Model
         return $this->belongsTo('App\Product')->withDefault();
     }
 
+    public function color()
+    {
+        return $this->belongsTo('App\Color', 'color_id', 'id')->withDefault();
+    }
+
     public function locations()
     {
         return $this->hasMany('App\LocationVariation');

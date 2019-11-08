@@ -308,7 +308,7 @@ class LocationVariationController extends Controller
                                     <td>'.$v->sku.'</td>
                                     <td>'.$v->name.'</td>
                                     <td>'.$v->stock.'</td>
-                                    <td>'.$product->colors_es.'</td>
+                                    <td>'.$v->color->name.'</td>
                                 </tr>';
                 }
 
@@ -329,8 +329,7 @@ class LocationVariationController extends Controller
                             '.$drawSKUS.'
                         </table>';
             $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
-            //FIXME $request->format changed to $request->get('format')
-            if ($request->get('format') === "landscape") {
+            if ($request->format === "landscape") {
                 $pdf->setPaper('A4', 'landscape');
                 $format = $head.'
                 <body>
