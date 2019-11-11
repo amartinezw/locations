@@ -113,7 +113,10 @@ class WarehouseLocationRepository extends BaseRepository
                 if ($request->has('product')) {
                     $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
                 }
-                if ($request->has('active') && $request->active > -1) {
+                if ($request->has('sku')) {
+                    $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
+                }
+                if ($request->has('active') && $request->active >= 0) {
                     $where[] = ['activation_disabled', '=', $request->active];
                 }
                 if ($request->has('category') && $request->category > 0) {
@@ -130,8 +133,8 @@ class WarehouseLocationRepository extends BaseRepository
                 }
             }
 
-            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where, $whereCategory, $onlyParent) {
-                $q->select('product_id')->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent) {
+            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+                $q->select('product_id')->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
                     $q->where($where);
                     $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
                         if ($onlyParent === true) {
@@ -145,6 +148,9 @@ class WarehouseLocationRepository extends BaseRepository
                                 $q->where($whereCategory);
                             });
                         }
+                    });
+                    $q->whereHas('variations', function($q) use ($whereSku) {
+                        $q->where($whereSku);
                     });
                 });
                 $q->groupBy('product_id');
@@ -174,9 +180,13 @@ class WarehouseLocationRepository extends BaseRepository
         $where = [];
         $whereCategory = [];
         $onlyParent = false;
+        $whereSku = [];
         if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
             if ($request->has('product')) {
                 $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
+            }
+            if ($request->has('sku')) {
+                $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
             }
             if ($request->has('active') && $request->active >= 0) {
                 $where[] = ['activation_disabled', '=', $request->active];
@@ -187,7 +197,7 @@ class WarehouseLocationRepository extends BaseRepository
                 } else {
                     $onlyParent = false;
                 }
-                if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                if ($request->has('category') && $request->category > 0 && !( $request->subcategory > 0 )) {
                     $whereCategory[] = ['id', '=', $request->category];
                 }else {
                     $whereCategory[] = ['id', '=', $request->subcategory];
@@ -195,8 +205,9 @@ class WarehouseLocationRepository extends BaseRepository
             }
         }
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
-            ->withCount(['items' => function($q) use ($where, $whereCategory, $onlyParent) {
-                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent) {
+
+            ->withCount(['items' => function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
                     $q->where($where);
                     $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
                         if ($onlyParent === true) {
@@ -210,6 +221,9 @@ class WarehouseLocationRepository extends BaseRepository
                                 $q->where($whereCategory);
                             });
                         }
+                    });
+                    $q->whereHas('variations', function($q) use ($whereSku) {
+                        $q->where($whereSku);
                     });
                 });
             }])
