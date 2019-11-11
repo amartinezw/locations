@@ -125,7 +125,7 @@ class WarehouseLocationRepository extends BaseRepository
                     } else {
                         $onlyParent = false;
                     }
-                    if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                    if ($request->has('category') && $request->category > 0 && !($request->subcategory > 0)) {
                         $whereCategory[] = ['id', '=', $request->category];
                     }else {
                         $whereCategory[] = ['id', '=', $request->subcategory];
@@ -197,7 +197,7 @@ class WarehouseLocationRepository extends BaseRepository
                 } else {
                     $onlyParent = false;
                 }
-                if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                if ($request->has('category') && $request->category > 0 && !( $request->subcategory > 0 )) {
                     $whereCategory[] = ['id', '=', $request->category];
                 }else {
                     $whereCategory[] = ['id', '=', $request->subcategory];
@@ -205,8 +205,9 @@ class WarehouseLocationRepository extends BaseRepository
             }
         }
         $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string')
+
             ->withCount(['items' => function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
-                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {                    
+                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku)
                     $q->where($where);
                     $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
                         if ($onlyParent === true) {
