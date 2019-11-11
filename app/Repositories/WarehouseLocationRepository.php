@@ -108,6 +108,7 @@ class WarehouseLocationRepository extends BaseRepository
         try {
             $where = [];
             $whereCategory = [];
+            $whereSku = [];
             $onlyParent = false;
             if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
                 if ($request->has('product')) {
