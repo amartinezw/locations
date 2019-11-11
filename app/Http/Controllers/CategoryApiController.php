@@ -16,10 +16,8 @@ class CategoryApiController extends Controller
     public function getParentCategories()
     {
         try {
-
             $categories = $this->mCategory->where('depends_id',0)->where('active',1)->get();
             return response()->json($categories)->setStatusCode(200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -32,10 +30,8 @@ class CategoryApiController extends Controller
     public function getChildCategories()
     {
         try {
-
             $categories = $this->mCategory->where('depends_id','>',0)->where('active',1)->get();
             return response()->json($categories)->setStatusCode(200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',

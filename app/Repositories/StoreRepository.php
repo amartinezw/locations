@@ -16,5 +16,9 @@ class StoreRepository extends BaseRepository
         $stores = $query->paginate($request->per_page ?? 10);
         return $stores;
     }
-    
+
+    public function getAllForSelect(Request $request)
+    {
+        return Store::orderBy($request->column, $request->order)->get();
+    }
 }

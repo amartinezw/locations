@@ -9,6 +9,7 @@ use App\Repositories\StoreRepository;
 class StoreController extends Controller
 {
 
+    protected $storeRepository;
     public function __construct(Request $request)
     {
         $this->storeRepository = new StoreRepository();
@@ -43,6 +44,21 @@ class StoreController extends Controller
     {
         try {
             return response()->json($this->storeRepository->getAll($request), 200);
+
+        } catch (\Exception $e) {
+            return responder()->error('fetch_stores_error', $e)->respond();
+        }
+    }
+
+    /**
+     * Obtener todas las tiendas sin paginado.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getAllForSelect(Request $request)
+    {
+        try {
+            return response()->json($this->storeRepository->getAllForSelect($request), 200);
 
         } catch (\Exception $e) {
             return responder()->error('fetch_stores_error', $e)->respond();

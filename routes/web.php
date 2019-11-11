@@ -42,6 +42,7 @@ $router->group([
     $router->get('roles/getall', 'RoleApiController@index');
     $router->get('roles/delete/{id}', 'RoleApiController@delete');
     $router->get('locationvariation/printsticker', 'LocationVariationController@printSticker');
+    $router->get('stores/getallstores', 'StoreController@getAllForSelect');
     $router->get('categories/parent', 'CategoryApiController@getParentCategories');
     $router->get('categories/childs', 'CategoryApiController@getChildCategories');
     $router->get('categories/child/{parent_id}', 'CategoryApiController@getCategoriesOfParent');

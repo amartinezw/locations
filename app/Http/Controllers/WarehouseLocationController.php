@@ -6,7 +6,6 @@ use App\Http\Controllers\ApiResponses;
 use App\Warehouse;
 use App\WarehouseLocation;
 use App\Repositories\WarehouseLocationRepository;
-
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -14,6 +13,7 @@ use Validator;
 
 class WarehouseLocationController extends Controller
 {
+    protected $warehouseLocationRepository;
 
     public function __construct(Request $request)
     {
