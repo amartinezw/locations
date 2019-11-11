@@ -124,7 +124,7 @@ class WarehouseLocationRepository extends BaseRepository
                     } else {
                         $onlyParent = false;
                     }
-                    if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
+                    if ($request->has('category') && $request->category > 0 && !($request->subcategory > 0)) {
                         $whereCategory[] = ['id', '=', $request->category];
                     }else {
                         $whereCategory[] = ['id', '=', $request->subcategory];
