@@ -329,7 +329,7 @@ class LocationVariationController extends Controller
                             '.$drawSKUS.'
                         </table>';
             $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
-            if ($request->format === "landscape") {
+            if ($request->get('format') === "landscape") {
                 $pdf->setPaper('A4', 'landscape');
                 $format = $head.'
                 <body>

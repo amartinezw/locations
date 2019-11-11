@@ -45,12 +45,12 @@ class LocationVariationRepository extends BaseRepository
             if ($request->has('name')) {
                 $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
             }
-            if ($request->has('active')) {
+
+            if ($request->active!=-1) {
                 $where[] = ['activation_disabled', '=', $request->active];
             }
-
             if ($request->has('department')) {
-                if ($request->department > 0 && !$request->subcategory > 0) {
+                if ($request->department > 0 && !($request->subcategory > 0)) {
                     $onlyParent = true;
                     $whereCategory[] = ['id', '=', $request->department];
                 } else if ($request->department > 0 && $request->subcategory > 0) {
@@ -60,6 +60,7 @@ class LocationVariationRepository extends BaseRepository
             }
         }
         if ($request->has('notLocated')) {
+
             $responseArray = Product::with(
                 ['variations' => function($q) {
                     $q->select('id','product_id','name','sku', 'stock', 'price');
@@ -124,10 +125,8 @@ class LocationVariationRepository extends BaseRepository
                 if ($request->has('sku')) {
                     $q->where('sku', $request->sku);
                 }
-            })
-            ->paginate($request->per_page ?: 20)->toArray();
+            })->paginate($request->per_page ?: 20)->toArray();
         }
-
         return ApiResponses::okObject($responseArray);
     }
 
