@@ -65,7 +65,7 @@ class LocationVariationRepository extends BaseRepository
 
             $responseArray = Product::with(
                 ['variations' => function($q) {
-                    $q->select('id','product_id','name','sku', 'stock', 'price');
+                    $q->select('id','product_id','name','sku', 'stock', 'price', 'color_id');
                 },
                  'variations.color:id,name',
                  'images' => function($q) {
@@ -95,13 +95,14 @@ class LocationVariationRepository extends BaseRepository
         } else {
             $responseArray = Product::with(
                 ['variations' => function($q) {
-                    $q->select('id','product_id','name','sku', 'stock', 'price')
+                    $q->select('id','product_id','name','sku', 'stock', 'price', 'color_id')
                         ->whereHas('locations');
                 },
                  'locations' => function($q) {
                     $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
                  },
                  'locations.warehouselocation:id,mapped_string',
+                 'variations.color:id,name',
                  'variations.locations:id,variation_id,warehouselocation_id',
                  'variations.locations.warehouselocation:id,mapped_string',
                  'images' => function($q) {

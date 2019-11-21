@@ -13,7 +13,7 @@ class Variation extends Model
 
     public function color()
     {
-        return $this->belongsTo('App\Color', 'color_id', 'id')->withDefault();
+        return $this->belongsTo('App\Color')->withDefault();
     }
 
     public function locations()
