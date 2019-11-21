@@ -30,6 +30,7 @@ $router->group([
     $router->get('warehouselocations/getracks', 'WarehouseLocationController@getracks');
     $router->get('warehouselocations/getblocks', 'WarehouseLocationController@getblocks');
     $router->get('warehouselocations/getall', 'WarehouseLocationController@getall');
+    $router->get('warehouselocations/printsticker', 'WarehouseLocationController@printSticker');
     $router->get('locationvariation/getsummary', 'LocationVariationController@getSummary');
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
     $router->get('locationvariation/getlatest', 'LocationVariationController@getlatest');

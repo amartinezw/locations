@@ -1,4 +1,5 @@
 /vendor
+/RDSCerts
 /.idea
 Homestead.json
 Homestead.yaml

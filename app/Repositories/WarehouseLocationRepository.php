@@ -37,13 +37,14 @@ class WarehouseLocationRepository extends BaseRepository
 
         $rack = new Rack;
         $rack->name = $newRack;
+        $rack->warehouse_id = $warehouse_id;
         $rack->save();
 
         for ($l=1; $l <= $levels; $l++) {
             for ($b=1; $b <= $blocks; $b++) {
                 $warehouseLocation = new WarehouseLocation;
                 $warehouseLocation->warehouse_id = $warehouse_id;
-                $warehouseLocation->rack_id = $rack_id;
+                $warehouseLocation->rack_id = $rack->id;
                 $warehouseLocation->block = $b;
                 $warehouseLocation->level = $l;
                 $warehouseLocation->rack = $newRack;
@@ -53,7 +54,7 @@ class WarehouseLocationRepository extends BaseRepository
                 if ($sides == 2) {
                     $warehouseLocation = new WarehouseLocation;
                     $warehouseLocation->warehouse_id = $warehouse_id;
-                    $warehouseLocation->rack_id = $rack_id;
+                    $warehouseLocation->rack_id = $rack->id;
                     $warehouseLocation->block = $b;
                     $warehouseLocation->level = $l;
                     $warehouseLocation->rack = $newRack;
@@ -82,7 +83,7 @@ class WarehouseLocationRepository extends BaseRepository
             $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$order)->paginate($request->per_page);
 
         return ApiResponses::okObject($warehouserepo);
-    }
+    }    
 
     public function editLocationActive(Request $request){
         $warehouseLocation = WarehouseLocation::find($request->id);

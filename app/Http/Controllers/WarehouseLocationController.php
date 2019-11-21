@@ -3,12 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\ApiResponses;
+use App\Http\Controllers\Controller;
+use App\Rack;
+use App\Repositories\WarehouseLocationRepository;
 use App\Warehouse;
 use App\WarehouseLocation;
-use App\Repositories\WarehouseLocationRepository;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-
+use Milon\Barcode\DNS1D;
 use Validator;
 
 class WarehouseLocationController extends Controller
@@ -68,6 +69,53 @@ class WarehouseLocationController extends Controller
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e->getMessage());
         }
+    }
+
+    /**
+     * Imprime etiqueta de producto
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function printSticker(Request $request)
+    {
+        if ($request->has('rack_id')) {
+            $rack = Rack::find($request->rack_id);
+            $warehouseLocations = $rack->warehouselocations;
+            $pdf = app()->make('dompdf.wrapper');
+            $pdf->setPaper('c7', 'landscape');   
+            $format = '<body>';
+            foreach ($warehouseLocations as $key => $wl) {
+                $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,90,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
+                $format .= '<div style="font-family: sans-serif">
+                    <br/>                
+                    <br/>
+                    <div style="margin-bottom: 45px">
+                    '.$barcode.'
+                    </div>                   
+                </div>';
+            }            
+            $format .= '</body>';            
+            $pdf->loadHTML($format);
+            return $pdf->stream();
+        } else if ($request->has('warehouselocation_id')) {
+            $warehouselocation = WarehouseLocation::find($request->warehouselocation_id);            
+            $pdf = app()->make('dompdf.wrapper');
+            $pdf->setPaper('c7', 'landscape');   
+            $format = '<body>';
+            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,90,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
+            $format .= '<div style="font-family: sans-serif">
+                    <br/>                
+                    <br/>
+                    <div style="margin-bottom: 45px">
+                    '.$barcode.'
+                    </div>                   
+                </div>';                        
+            $format .= '</body>';            
+            $pdf->loadHTML($format);
+            return $pdf->stream();            
+        }
+        return ApiResponses::badRequest();
     }
 
     /**

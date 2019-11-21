@@ -269,6 +269,7 @@ class LocationVariationController extends Controller
                         }
                     </style>
                 </head>';
+            $variations = $product->variations;
             $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';
             $tableDescription = '<table>
                             <tr>
@@ -293,7 +294,7 @@ class LocationVariationController extends Controller
                             </tr>                        
                             <tr>
                                 <td>Precio</td>
-                                <td>$'.$product->user_price.'</td>
+                                <td>$'.$variations[0]->price.'</td>
                             </tr>
                             <tr>
                                 <td>Estatus</td>
@@ -301,7 +302,7 @@ class LocationVariationController extends Controller
                             </tr>
                         </table>';
             $drawSKUS = '';
-            $variations = $product->variations;
+            
             foreach ($variations as $key => $v) {
                 if ($v->stock > 0 && $v->active == 1) {
                     $drawSKUS .= '<tr>
