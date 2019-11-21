@@ -115,8 +115,11 @@ class WarehouseLocationRepository extends BaseRepository
                 if ($request->has('product')) {
                     $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
                 }
-                if ($request->has('sku')) {
+                if ($request->has('sku') && strlen($request->sku) < 9) {
                     $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
+                }
+                if ($request->has('sku') && strlen($request->sku) > 8) {
+                    $where[] = ['internal_reference', '=', $request->sku];    
                 }
                 if ($request->has('active') && $request->active >= 0) {
                     $where[] = ['activation_disabled', '=', $request->active];
@@ -187,8 +190,11 @@ class WarehouseLocationRepository extends BaseRepository
             if ($request->has('product')) {
                 $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
             }
-            if ($request->has('sku')) {
+            if ($request->has('sku') && strlen($request->sku) < 9) {
                 $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
+            }
+            if ($request->has('sku') && strlen($request->sku) > 8) {
+                $where[] = ['internal_reference', '=', $request->sku];    
             }
             if ($request->has('active') && $request->active >= 0) {
                 $where[] = ['activation_disabled', '=', $request->active];

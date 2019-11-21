@@ -45,7 +45,9 @@ class LocationVariationRepository extends BaseRepository
             if ($request->has('name')) {
                 $where[] = ['name', 'LIKE', '%'.$request->name.'%'];
             }
-
+            if ($request->has('sku') && strlen($request->sku) > 8) {
+                $where[] = ['internal_reference', '=', $request->sku];    
+            }
             if ($request->active!=-1) {
                 $where[] = ['activation_disabled', '=', $request->active];
             }
@@ -85,7 +87,7 @@ class LocationVariationRepository extends BaseRepository
                 }
             })
             ->whereHas('variations', function($q) use ($request) {
-                if ($request->has('sku')) {
+                if ($request->has('sku') && strlen($request->sku) < 9) {
                     $q->where('sku', $request->sku);
                 }
             })
@@ -122,7 +124,7 @@ class LocationVariationRepository extends BaseRepository
             })
             ->whereHas('locations')
             ->whereHas('variations', function($q) use ($request) {
-                if ($request->has('sku')) {
+                if ($request->has('sku') && strlen($request->sku) < 9) {
                     $q->where('sku', $request->sku);
                 }
             })->paginate($request->per_page ?: 20)->toArray();
