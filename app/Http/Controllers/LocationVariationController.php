@@ -304,7 +304,7 @@ class LocationVariationController extends Controller
             $drawSKUS = '';
             
             foreach ($variations as $key => $v) {
-                if ($v->stock > 0 && $v->active == 1) {
+                if ($v->active == 1) {
                     $drawSKUS .= '<tr>
                                     <td>'.$v->sku.'</td>
                                     <td>'.$v->name.'</td>
