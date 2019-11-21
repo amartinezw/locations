@@ -29,6 +29,7 @@ $router->group([
     $router->get('/warehouses/getall', 'WarehouseController@getall');
     $router->get('warehouselocations/getracks', 'WarehouseLocationController@getracks');
     $router->get('warehouselocations/getblocks', 'WarehouseLocationController@getblocks');
+    $router->get('warehouselocations/updatelocations', 'WarehouseLocationController@updateLocations');
     $router->get('warehouselocations/getall', 'WarehouseLocationController@getall');
     $router->get('warehouselocations/printsticker', 'WarehouseLocationController@printSticker');
     $router->get('locationvariation/getsummary', 'LocationVariationController@getSummary');

@@ -41,6 +41,34 @@ class WarehouseLocationController extends Controller
         //
     }
 
+    public function updateLocations(Request $request)
+    {
+        $warehouselocations = WarehouseLocation::get();
+        foreach ($warehouselocations as $key => $wl) {
+            $rack = 'R'.$wl->rack;
+            $block = 'B'.$wl->block;
+            $level = 'N'.$wl->level;
+            if ($wl->rack < 10) {
+                $rack = 'R0'.$wl->rack;
+                $change = true;
+            }
+            if ($wl->block < 10) {
+                $block = 'B0'.$wl->block;
+                $change = true;
+            }
+            if ($wl->level < 10) {
+                $level = 'N0'.$wl->level;
+                $change = true;
+            }
+            if ($change === true) {
+                $mapped_string = $rack.'-'.$block.'-'.$level;
+                $wl->mapped_string = $mapped_string;
+                $wl->save();
+            }
+        }
+        return ApiResponses::ok();
+    }
+
     /**
      * Obtener todas las ubicaciones de determinada Bodega.
      *
@@ -86,11 +114,11 @@ class WarehouseLocationController extends Controller
             $pdf->setPaper('c7', 'landscape');   
             $format = '<body>';
             foreach ($warehouseLocations as $key => $wl) {
-                $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,90,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
-                $format .= '<div style="font-family: sans-serif">
+                $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
+                $format .= '<div style="font-family: sans-serif;margin-left: 15px">
                     <br/>                
                     <br/>
-                    <div style="margin-bottom: 45px">
+                    <div>
                     '.$barcode.'
                     </div>                   
                 </div>';
@@ -103,11 +131,11 @@ class WarehouseLocationController extends Controller
             $pdf = app()->make('dompdf.wrapper');
             $pdf->setPaper('c7', 'landscape');   
             $format = '<body>';
-            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,90,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
-            $format .= '<div style="font-family: sans-serif">
+            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
+            $format .= '<div style="font-family: sans-serif;margin-left: 15px">
                     <br/>                
                     <br/>
-                    <div style="margin-bottom: 45px">
+                    <div>
                     '.$barcode.'
                     </div>                   
                 </div>';                        
