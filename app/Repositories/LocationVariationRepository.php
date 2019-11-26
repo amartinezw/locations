@@ -151,6 +151,12 @@ class LocationVariationRepository extends BaseRepository
                         $q->where('warehouselocation_id', $warehouselocation->id);
                     });
             },
+            'locations' => function($q) {
+                $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
+             },
+             'locations.warehouselocation:id,mapped_string',
+             'variations.locations:id,variation_id,warehouselocation_id',
+             'variations.locations.warehouselocation:id,mapped_string',
              'variations.color:id,name',
              'images' => function($q) {
                  $q->select('id','file', 'product_id')->groupBy('product_id');

@@ -258,19 +258,35 @@ class LocationVariationController extends Controller
      */
     public function printSticker(Request $request)
     {
+        $products = [];
+        $pdf = app()->make('dompdf.wrapper');
+        $paper_size = array(0,0,359.21,550);
+        $pdf->setPaper($paper_size);
+        $format = '';
+        if ($request->get('format') === "landscape") {
+            $paper_size = array(0,0,649.13,359.21);
+            $pdf->setPaper($paper_size);
+        }
         if ($request->has('product_id')) {
-            $pdf = app()->make('dompdf.wrapper');
-            $product = \App\Product::find($request->product_id);
-
-            $head = '<head>
-                    <style>
-                        table td {
-                            padding: 0 6px 0 0;
-                        }
-                    </style>
-                </head>';
-            $variations = $product->variations;
-            $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';
+            if (is_numeric($request->product_id)) {                
+                $products[0] = \App\Product::find($request->product_id);    
+            } else {
+                return ApiResponses::badRequest('product_id debe tener un valor numérico');
+            }
+        } else if ($request->has('warehouselocation_id')) {
+            if (is_numeric($request->warehouselocation_id)) {
+                $products = \App\Product::whereHas('locations', function($q) use ($request) {
+                    $q->where('warehouselocation_id', $request->warehouselocation_id);
+                })->get();
+            }
+        }        
+        foreach ($products as $key => $product) {
+            $variations = $product->variations;            
+            if (sizeof($product->firstimg) > 0) {
+                $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';                
+            } else {
+                $image = '';
+            }
             $tableDescription = '<table>
                             <tr>
                                 <td>Proveedor</td>
@@ -306,35 +322,38 @@ class LocationVariationController extends Controller
             foreach ($variations as $key => $v) {
                 if ($v->active == 1) {
                     $drawSKUS .= '<tr>
-                                    <td>'.$v->sku.'</td>
-                                    <td>'.$v->name.'</td>
-                                    <td>'.$v->stock.'</td>
-                                    <td>'.$v->color->name.'</td>
+                                    <td align="center">'.$v->sku.'</td>
+                                    <td align="center">'.$v->name.'</td>
+                                    <td align="center">'.$v->stock.'</td>
+                                    <td align="center">'.$v->color->name.'</td>
                                 </tr>';
                 }
 
             }
             $tableSKUS = '<table>
                             <tr>
-                                <td>Nombre</td>
-                                <td colspan="2">'.$product->name.'</td>
+                                <td>Actualizado</td>
+                                <td colspan="3" align="right">'.date_format($variations[0]->updated_at, 'd/m/Y').'</td>
                                 <td></td>
                                 <td></td>
                             </tr>
                             <tr>
-                                <td>SKU</td>
-                                <td>Talla</td>
-                                <td>Pzs</td>
-                                <td>Color</td>
+                                <td>Nombre</td>
+                                <td colspan="3" align="right">'.$product->name.'</td>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td align="center">SKU</td>
+                                <td align="center">Talla</td>
+                                <td align="center">Pzs</td>
+                                <td align="center">Color</td>
                             </tr>                        
                             '.$drawSKUS.'
                         </table>';
             $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
-            if ($request->get('format') === "landscape") {
-                $pdf->setPaper('A4', 'landscape');
-                $format = $head.'
-                <body>
-                <div style="font-family: sans-serif">
+            if ($request->get('format') === "landscape") {                
+                $format .= '<div style="font-family: sans-serif;page-break-after: always">
                     <div style="display:inline-block">
                     '.$image.'
                     </div>
@@ -346,13 +365,10 @@ class LocationVariationController extends Controller
                     </div>
                     <div>
                     '.$barcode.'
-                    </div>
-                </div>                
-                </body>';
+                    </div>                   
+                </div>';
             } else {
-                $format = $head.'
-                <body>
-                <div style="font-family: sans-serif">
+                $format .= '<div style="font-family: sans-serif;page-break-after: always">
                     <div style="margin-bottom: 45px">
                     '.$barcode.'
                     </div>
@@ -365,14 +381,20 @@ class LocationVariationController extends Controller
                     <div>
                     '.$tableSKUS.'
                     </div>
-                </div>
-                </body>';
-            }
-            $pdf->loadHTML($format);
-            return $pdf->stream();
-        } else {
-            return ApiResponses::badRequest();
+                </div>';
+            }   
         }
+        $head = '<head>
+                <style>
+                    table td {
+                        padding: 0 6px 0 0;
+                        align: center;
+                    }
+                </style>
+            </head>';
+        $body = $head.'<body>'.$format.'</body>';
+        $pdf->loadHTML($format);
+        return $pdf->stream();        
     }
 
     /**
@@ -407,5 +429,5 @@ class LocationVariationController extends Controller
     public function destroy($id)
     {
         //
-    }
+    }    
 }
