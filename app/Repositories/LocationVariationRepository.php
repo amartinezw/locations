@@ -67,6 +67,10 @@ class LocationVariationRepository extends BaseRepository
                 ['variations' => function($q) {
                     $q->select('id','product_id','name','sku', 'stock', 'price', 'color_id');
                 },
+                'locations' => function($q) {
+                    $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id','product_id');
+                 },
+                 'locations.warehouselocation:id,mapped_string',
                  'variations.color:id,name',
                  'images' => function($q) {
                      $q->select('id','file', 'product_id')->groupBy('product_id');
