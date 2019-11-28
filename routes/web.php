@@ -20,7 +20,7 @@ $router->get('/routes', function () use ($router) {
 });
 
 $router->group([
-    'middleware' => 'client',
+    'middleware' => ['client', 'auth:api'],
     'prefix'	 => 'api/v1',
 ], function (\Laravel\Lumen\Routing\Router $router) {
     $router->get('/test-client', function () {

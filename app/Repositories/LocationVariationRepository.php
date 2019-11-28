@@ -261,6 +261,7 @@ class LocationVariationRepository extends BaseRepository
             'mapped_string' => $request->mapped_string,
             'warehouse_id'  => $request->warehouse_id
         ])->first();
+                        
         if (empty($warehouselocation)) {
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
@@ -281,6 +282,7 @@ class LocationVariationRepository extends BaseRepository
                     $lv->warehouselocation_id = $warehouselocation->id;
                     $lv->variation_id = $vs->id;
                     $lv->product_id = $vs->product_id;
+                    $lv->user_id = $request->user()->id;
                     $lv->save();
                     $lvCollection[] = $lv->id;
                 }
@@ -304,6 +306,7 @@ class LocationVariationRepository extends BaseRepository
                         $lv->warehouselocation_id = $warehouselocation->id;
                         $lv->variation_id = $vs->id;
                         $lv->product_id = $vs->product_id;
+                        $lv->user_id = $request->user()->id;
                         $lv->save();
                         $lvCollection[] = $lv->id;
                     }
@@ -322,6 +325,7 @@ class LocationVariationRepository extends BaseRepository
                     $locationVariation->warehouselocation_id = $warehouselocation->id;
                     $locationVariation->variation_id = $variation->id;
                     $locationVariation->product_id = $variation->product_id;
+                    $locationVariation->user_id = $request->user()->id;
                     $locationVariation->save();
                 } else {
                     return ApiResponses::found('El producto ya se encuentra ubicado aqui');
