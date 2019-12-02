@@ -3,11 +3,17 @@ namespace App\Http\Controllers;
 
 use App\User;
 use Carbon\Carbon;
+use DateTime;
 use Illuminate\Http\Request;
 use App\Http\Controllers\ApiResponses;
 use Auth;
+use Laravel\Passport\TokenRepository;
+use League\OAuth2\Server\Exception\OAuthServerException;
+use League\OAuth2\Server\ResourceServer;
 use Log;
+use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Validator;
+use DB;
 
 
 class UserApiController extends Controller
@@ -267,6 +273,34 @@ class UserApiController extends Controller
                 'code' => 500,
                 'message' => $e->getMessage(),
             ])->setStatusCode(500);
+        }
+    }
+
+    public function checkToken($request)
+    {
+        $server = new ResourceServer();
+        $tokens = new TokenRepository();
+
+        //$psr = (new DiactorosFactory)->createRequest($request);
+
+        try {
+            $psr = $server->validateAuthenticatedRequest($request);
+
+            $token = $tokens->find(
+                $psr->getAttribute('oauth_access_token_id')
+            );
+
+            $currentDate = new DateTime();
+            $tokenExpireDate = new DateTime($token->expires_at);
+
+            $isAuthenticated = $tokenExpireDate > $currentDate ? true : false;
+
+
+            return json_encode(array('authenticated' => $isAuthenticated));
+
+        } catch (OAuthServerException $e) {
+
+            return json_encode(array('error' => 'Something went wrong with authenticating. Please logout and login again.'));
         }
     }
 
