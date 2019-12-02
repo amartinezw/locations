@@ -1,5 +1,6 @@
 <?php
 namespace App\Providers;
+
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Gate;
@@ -25,8 +26,6 @@ class AuthServiceProvider extends ServiceProvider
     public function boot()
     {
         LumenPassport::routes();
-        LumenPassport::tokensExpireIn(Carbon::now()->addDays(1));
-        LumenPassport::refreshTokensExpireIn(Carbon::now()->addDays(2));
         $this->app['auth']->viaRequest('api', function ($request) {
             if ($request->input('api_token')) {
                 return User::where('api_token', $request->input('api_token'))->first();
