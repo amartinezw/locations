@@ -23,8 +23,10 @@ $router->get('/routes', function () use ($router) {
 	dump(app('router')->getRoutes());
 });
 
+$router->get('/check-token/{token}', 'UserApiController@checkToken');
+
 $router->group([
-    'middleware' => 'client',
+    'middleware' => 'auth:api',
     'prefix'	 => 'api/v1',
 ], function (\Laravel\Lumen\Routing\Router $router) {
     $router->get('/test-client', function () {
