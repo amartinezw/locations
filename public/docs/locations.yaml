@@ -1,0 +1,1533 @@
+openapi: 3.0.0
+info:
+  title: Locations
+  description: |-
+    La interfaz para programación de la aplicación (API) Locations está desarrollada en Lumen 5.8 y está basada en arquitectura REST que utiliza el protocolo HTTP para proveer una interfaz uniforme, agnóstica a lenguajes de programación, orientado a recursos y con códigos de respuesta estandarizados.
+    Todas las respuestas del API están en formato JSON y utiliza los códigos de respuesta del protocolo HTTP en los encabezados.
+  contact:
+    email: amartinezw@agarcia.com.mx
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0-oas3
+servers:
+- url: https://locationsback.ccp.tienda/api/v1
+  description: Ambiente sandbox
+security:
+- bearerAuth: []
+tags:
+- name: Warehouses
+  description: Almacenes dados de alta en el API
+- name: WarehouseLocations
+  description: Racks ubicados en el almacen
+- name: LocationVarations
+  description: Variations de los productos
+paths:
+  /warehouses/store:
+    post:
+      tags:
+      - Warehouses
+      summary: Guarda un almacen
+      requestBody:
+        description: Guarda un almacen
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body'
+      responses:
+        200:
+          description: Almacen creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouses/getall:
+    get:
+      tags:
+      - Warehouses
+      summary: Consultar listado de Almacenes
+      parameters:
+      - name: store_id
+        in: query
+        description: Identificador de tienda
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Listado de objetos tipo Almacenes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_1'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouses/destroy:
+    post:
+      tags:
+      - Warehouses
+      summary: Elimina un Almacen de Locations
+      parameters:
+      - name: warehouse_id
+        in: query
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          description: Identificador de almacen
+      responses:
+        200:
+          description: Mensaje de eliminacion
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_2'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouselocations/getall:
+    get:
+      tags:
+      - WarehouseLocations
+      summary: Consultar ubicaciones de Racks
+      parameters:
+      - name: warehouse_id
+        in: query
+        description: Identificador de almacen
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: per_page
+        in: query
+        description: Número de resultados por página
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: order
+        in: query
+        description: Orden de resultados
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: column
+        in: query
+        description: Nombre de la columna a ordenar
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Número de página a consultar
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Listado de ubicaciones de Racks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_3'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouselocations/maplocations:
+    post:
+      tags:
+      - WarehouseLocations
+      summary: Mapea un rack
+      requestBody:
+        description: Mapea un rack
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_1'
+      responses:
+        200:
+          description: Rack ubicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_4'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouselocations/getracks:
+    get:
+      tags:
+      - WarehouseLocations
+      summary: Consultar Los racks de un almacen
+      parameters:
+      - name: warehouse_id
+        in: query
+        description: Identificador de almacen
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Listado de ubicaciones de Racks
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_5'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /warehouselocations/getblocks:
+    get:
+      tags:
+      - WarehouseLocations
+      summary: Consultar los blocks de un rack
+      parameters:
+      - name: warehouse_id
+        in: query
+        description: Identificador de almacen
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: rack
+        in: query
+        description: Identificador de rack
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Listado de los bloques de un Rack
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_6'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/getall:
+    get:
+      tags:
+      - LocationVarations
+      summary: Consultar listado de Productos
+      parameters:
+      - name: per_page
+        in: query
+        description: Número de resultados por página
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: order
+        in: query
+        description: Orden de resultados
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: column
+        in: query
+        description: Nombre de la columna a ordenar
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: page
+        in: query
+        description: Número de página a consultar
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: active
+        in: query
+        description: Indicador de producto activo
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: boolean
+      responses:
+        200:
+          description: Listado de objetos tipo Almacenes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_7'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/getsummary:
+    get:
+      tags:
+      - LocationVarations
+      summary: Consultar listado de Productos
+      responses:
+        200:
+          description: Listado de objetos tipo Almacenes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_8'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/getlatest:
+    get:
+      tags:
+      - LocationVarations
+      summary: Consultar listado de Productos
+      responses:
+        200:
+          description: Listado de objetos tipo Almacenes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_7'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/getitemsinlocation:
+    get:
+      tags:
+      - LocationVarations
+      summary: Consultar listado de Productos
+      parameters:
+      - name: warehouse_id
+        in: query
+        description: Identificador del almacen
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      - name: mapped_string
+        in: query
+        description: Nombre del mapeo
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Listado de objetos tipo Almacenes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_7'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/locateitemscan:
+    post:
+      tags:
+      - LocationVarations
+      summary: Mapea un producto
+      requestBody:
+        description: Mapea un producto
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_2'
+      responses:
+        200:
+          description: Producto ubicado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/getlocationsofproduct:
+    get:
+      tags:
+      - LocationVarations
+      summary: Obtener ubicacion de un producto
+      parameters:
+      - name: sku
+        in: query
+        description: SKU del producto
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        200:
+          description: Ubicacion de un producto
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_9'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/removeitemfromlocation:
+    post:
+      tags:
+      - LocationVarations
+      summary: Elimina ubicacion de un producto
+      requestBody:
+        description: Elimina ubicacion de un producto
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/body_3'
+      responses:
+        200:
+          description: Producto eliminado de la ubicación
+          content:
+            application/json:
+              example: Producto eliminado
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autenticado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/responses/UnauthorizedError'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+  /locationvariation/printsticker:
+    get:
+      tags:
+      - LocationVarations
+      summary: Obtener ubicacion de un producto
+      parameters:
+      - name: product_id
+        in: query
+        description: Id del producto
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        200:
+          description: Descarga archivo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_200_10'
+        400:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        401:
+          description: No autorizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No se ha encontrado el recurso solicitado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        4XX:
+          description: Error en petición
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        5XX:
+          description: Error interno
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      security:
+      - bearerAuth: []
+components:
+  schemas:
+    Warehouse:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del Almacen
+          example: 1
+        name:
+          type: string
+          description: Nombre del Almacen
+          example: Bodega E-Commerce
+        store_id:
+          type: integer
+          description: Llave foranea de la tienda dentro de Locations
+          example: 30
+        created_at:
+          type: string
+          description: Fecha de creación del almacen
+          example: 2019-10-29 18:43:46
+        updated_at:
+          type: string
+          description: Fecha de actualización del almacen
+          example: 2019-10-29 18:43:53
+        store:
+          type: object
+          description: Tienda asociada al almacen
+          example:
+            id: 30
+            created_at: 2018-05-07 12:04:54
+            updated_at: 2018-05-07 12:04:54
+            number: 10125
+            name: E-COMMERCE
+      description: Objeto Almacenes
+    WarehouseLocations:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del Rack
+          example: 1
+        warehouse_id:
+          type: integer
+          description: Identificador del Almacen
+          example: 1
+        rack:
+          type: integer
+          description: Identificador de Rack
+          example: 1
+        block:
+          type: integer
+          description: Block del rack
+          example: 1
+        level:
+          type: integer
+          description: Nivel del rack
+          example: 1
+        side:
+          type: integer
+          description: Lado del rack
+          example: 1
+        mapped_string:
+          type: string
+          description: Nombre del mapeado
+          example: R01-B01-N01
+        created_at:
+          type: string
+          description: Fecha de creación
+          example: 2019-10-23 21:22:53
+        updated_at:
+          type: string
+          description: Fecha de actualización
+          example: 2019-11-22 01:14:22
+        rack_id:
+          type: integer
+          description: Ifentificacor del Rack
+          example: 1
+        active:
+          type: boolean
+          description: Indica si es activo el rack
+          example: false
+        warehouse:
+          type: object
+          description: Almacen dentro de Locations
+          example:
+            id: 1
+            name: Bodega E-Commerce
+            store_id: 30
+            created_at: 2019-10-29 18:43:46
+            updated_at: 2019-10-29 18:43:53
+            store:
+              id: 30
+              created_at: 2018-05-07 12:04:54
+              updated_at: 2018-05-07 12:04:54
+              number: 10125
+              name: E-COMMERCE
+      description: Objeto Racks
+    WarehouseRacks:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del Rack
+          example: 1
+        warehouse_id:
+          type: integer
+          description: Identificador del Almacen
+          example: 1
+        rack:
+          type: integer
+          description: Identificador de Rack
+          example: 1
+        total_items:
+          type: integer
+          description: Itemns ubicados
+          example: 30
+      description: Objeto Racks
+    WarehouseBlocks:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del Rack
+          example: 1
+        rack:
+          type: integer
+          description: Identificador de Rack
+          example: 1
+        block:
+          type: integer
+          description: Identificador de Block
+          example: 1
+        level:
+          type: integer
+          description: Identificador de Nivel
+          example: 1
+        side:
+          type: integer
+          description: Identificador del Lado
+          example: 1
+        mapped_string:
+          type: string
+          description: Nombre de la ubicacion
+          example: "1"
+        active:
+          type: boolean
+          description: Indica si es activo el rack
+          example: false
+        items_count:
+          type: integer
+          description: Numero de objetos ubicados
+          example: 30
+      description: Objeto Blocks
+    Variations:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del Producto
+          example: 1
+        name:
+          type: string
+          description: Nombre del Producto
+          example: Blusa Crop Estampada
+        internal_reference:
+          type: string
+          description: Referencia interna del producto
+          example: "102180805635372"
+        provider:
+          type: string
+          description: Identificador de Proovedor
+          example: "9292"
+        colors_es:
+          type: string
+          description: Color en español
+          example: Negro
+        family:
+          type: string
+          description: Familia a la que pertenece el producto
+          example: Blusas
+        parent_name:
+          type: string
+          description: Categoria padre del producto
+          example: Mujer
+        variations:
+          type: object
+          description: Objeto de variaciond el producto
+          example:
+            id: 33888
+            product_id: 7479
+            name: CH
+            sku: "1976362"
+            stock: 0
+            price: "50.00"
+            locations:
+              id: 2
+              variation_id: 33888
+              warehouselocation_id: 1056
+              warehouselocation:
+                id: 1056
+                mapped_string: R16-A4-N5
+        locations:
+          type: object
+          description: Localizacion del producto
+          example:
+            id: 2
+            warehouselocation_id: 1056
+            product_id: 7479
+            warehouselocation:
+              id: 1056
+              mapped_string: R16-A4-N5
+        images:
+          type: object
+          description: Imagenes del producto
+          example:
+            id: 34768
+            file: 325b5f9b88404b3.jpg
+            product_id: 7479
+      description: Objeto Variations Productos
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del producto
+          example: 157
+        name:
+          type: string
+          description: Nombre del producto
+          example: Jeans Ultra Skinny
+        internal_reference:
+          type: string
+          description: Identificador interno del producto
+          example: "16900000550724"
+        variations:
+          type: object
+          description: Variations del producto
+          example:
+            id: 754
+            name: "11"
+            sku: "1726462"
+            product_id: 157
+      description: Objeto Productos
+    ProductLocation:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Identificador del producto
+          example: 157
+        name:
+          type: string
+          description: Nombre del producto
+          example: Jeans Ultra Skinny
+        provider:
+          type: string
+          description: Identificador interno del proceedor
+          example: "6406"
+        internal_reference:
+          type: string
+          description: Identificador interno del producto
+          example: "16900000550724"
+        family:
+          type: string
+          description: Familia a la que pertenece el producto
+          example: Blusas
+        parent_name:
+          type: string
+          description: Categoria padre del producto
+          example: Mujer
+        colors_es:
+          type: string
+          description: Color en español
+          example: Negro
+        locations:
+          type: object
+          description: Objeto de localizacion
+          example:
+            id: 5287
+            product_id: 157
+            warehouselocation_id: 1
+            warehouselocation:
+              id: 1
+              mapped_string: R1-A1-N1
+        variations:
+          type: object
+          description: Variations del producto
+          example:
+            id: 754
+            name: "11"
+            sku: "1726462"
+            stock: 11
+            product_id: 157
+        firstimg:
+          type: object
+          description: Detalles de la imagen de producto
+          example:
+            id: 43835
+            product_id: 157
+            file: 325bd245b42083d.jpg
+      description: Objeto ubicación de producto
+    Error:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Estatus de la petición
+          enum:
+          - error
+          - fail
+        error:
+          $ref: '#/components/schemas/Error_error'
+        http_code:
+          type: integer
+      description: Objeto Error
+    body:
+      required:
+      - name
+      - store_id
+      type: object
+      properties:
+        nombre:
+          maxLength: 60
+          minLength: 3
+          type: string
+          description: Nombre del almacen
+        store_id:
+          type: integer
+          description: Id de la tienda en Locations
+    inline_response_200_data:
+      type: object
+      properties:
+        warehouse:
+          $ref: '#/components/schemas/Warehouse'
+    inline_response_200:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/inline_response_200_data'
+    inline_response_200_1:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Warehouse'
+        first_page_url:
+          type: string
+          description: URL de la primera pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall?page=1
+        from:
+          type: integer
+          description: numero de pagina
+          example: 1
+        last_page_url:
+          type: string
+          description: URL de la ultima pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall?page=1
+        next_page_url:
+          type: string
+          description: Siguiente pagina url
+        path:
+          type: string
+          description: URL base de la petición
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall
+        per_page:
+          maximum: 100
+          minimum: 5
+          type: integer
+          description: Número de registros por página
+          default: 10
+        prev_page_url:
+          type: string
+          description: Pagina previa de petición
+        to:
+          type: integer
+          description: Índice de fin
+          example: 1
+        total:
+          type: integer
+          description: Total de registros
+          example: 1
+    inline_response_200_2:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          description: Mensaje de eliminación
+          items:
+            example: Almacen eliminado
+    inline_response_200_3:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WarehouseLocations'
+        first_page_url:
+          type: string
+          description: URL de la primera pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouselocations/getall?page=1
+        from:
+          type: integer
+          description: numero de pagina
+          example: 1
+        last_page_url:
+          type: string
+          description: URL de la ultima pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouselocations/getall?page=163
+        next_page_url:
+          type: string
+          description: Siguiente pagina url
+          example: https://locationsback.ccp.tienda/api/v1/warehouselocations/getall?page=2
+        path:
+          type: string
+          description: URL base de la petición
+          example: https://locationsback.ccp.tienda/api/v1/warehouselocations/getall
+        per_page:
+          maximum: 100
+          minimum: 5
+          type: integer
+          description: Número de registros por página
+          default: 10
+        prev_page_url:
+          type: string
+          description: Pagina previa de petición
+        to:
+          type: integer
+          description: Índice de fin
+          example: 1
+        total:
+          type: integer
+          description: Total de registros
+          example: 1
+    body_1:
+      required:
+      - blocks
+      - levels
+      - sides
+      - warehouse_id
+      type: object
+      properties:
+        blocks:
+          type: integer
+          description: Numero de blocks
+        levels:
+          type: integer
+          description: Numero de niveles
+        sides:
+          type: integer
+          description: Numero de lados
+        warehouse_id:
+          type: integer
+          description: Identificador del Almacen
+    inline_response_200_4:
+      type: object
+      properties:
+        data:
+          type: object
+          example: Recurso creado
+    inline_response_200_5:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WarehouseRacks'
+    inline_response_200_6:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/WarehouseBlocks'
+    inline_response_200_7:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Variations'
+        first_page_url:
+          type: string
+          description: URL de la primera pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall?page=1
+        from:
+          type: integer
+          description: numero de pagina
+          example: 1
+        last_page_url:
+          type: string
+          description: URL de la ultima pagina
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall?page=1
+        next_page_url:
+          type: string
+          description: Siguiente pagina url
+        path:
+          type: string
+          description: URL base de la petición
+          example: https://locationsback.ccp.tienda/api/v1/warehouses/getall
+        per_page:
+          maximum: 100
+          minimum: 5
+          type: integer
+          description: Número de registros por página
+          default: 10
+        prev_page_url:
+          type: string
+          description: Pagina previa de petición
+        to:
+          type: integer
+          description: Índice de fin
+          example: 1
+        total:
+          type: integer
+          description: Total de registros
+          example: 1
+    inline_response_200_8:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: object
+          example:
+            productsLocatedCount: 1131
+            warehousesCount: 1
+            storesCount: 222
+            warehouseLocationsCount: 1628
+    body_2:
+      required:
+      - mapped_string
+      - sku
+      - warehouse_id
+      type: object
+      properties:
+        warehouse_id:
+          type: integer
+          description: Identificador del almacen
+        sku:
+          type: string
+          description: SKU del producto
+        mapped_string:
+          type: string
+          description: Nombre de la ubicación
+    inline_response_200_9:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProductLocation'
+    body_3:
+      required:
+      - sku
+      - warehouselocation_id
+      type: object
+      properties:
+        warehouselocation_id:
+          type: integer
+          description: Identificador de la ubicación
+        sku:
+          type: string
+          description: SKU del producto
+    inline_response_200_10:
+      type: object
+      properties:
+        http_code:
+          type: integer
+          description: Código http de respuesta en el header
+          enum:
+          - 200
+          - 400
+          - 401
+          - 404
+          - 500
+    Error_error:
+      type: object
+      properties:
+        code:
+          type: integer
+        type:
+          type: string
+        message:
+          type: string
+  responses:
+    UnauthorizedError:
+      description: Token de acceso faltante o inválido
+    ErrorPeticion:
+      description: Error en petición
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorAutenticacion:
+      description: No autorizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorNoEncontrado:
+      description: No se ha encontrado el recurso solicitado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ErrorInterno:
+      description: Error interno
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

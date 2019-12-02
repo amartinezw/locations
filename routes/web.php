@@ -15,12 +15,18 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
+$router->get('/documentacion', function () use ($router) {
+    return view('locations');
+});
+
 $router->get('/routes', function () use ($router) {
 	dump(app('router')->getRoutes());
 });
 
+$router->get('/check-token/{token}', 'UserApiController@checkToken');
+
 $router->group([
-    'middleware' => ['client', 'auth:api'],
+    'middleware' => 'auth:api',
     'prefix'	 => 'api/v1',
 ], function (\Laravel\Lumen\Routing\Router $router) {
     $router->get('/test-client', function () {
