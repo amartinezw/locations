@@ -6,7 +6,6 @@ use App\Http\Controllers\ApiResponses;
 use App\Http\Controllers\Controller;
 use App\Rack;
 use App\Repositories\WarehouseLocationRepository;
-use App\Warehouse;
 use App\WarehouseLocation;
 use Illuminate\Http\Request;
 use Milon\Barcode\DNS1D;
@@ -14,6 +13,9 @@ use Validator;
 
 class WarehouseLocationController extends Controller
 {
+    /**
+     * @var Resource
+     */
     protected $warehouseLocationRepository;
 
     public function __construct(Request $request)
@@ -41,7 +43,7 @@ class WarehouseLocationController extends Controller
         //
     }
 
-    public function updateLocations(Request $request)
+    public function updateLocations()
     {
         $warehouselocations = WarehouseLocation::get();
         foreach ($warehouselocations as $key => $wl) {
@@ -114,9 +116,8 @@ class WarehouseLocationController extends Controller
             $pdf->setPaper('c7', 'landscape');   
             $format = '<body>';
             foreach ($warehouseLocations as $key => $wl) {
-                $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
-                $format .= '<div style="font-family: sans-serif;margin-left: 15px">
-                    <br/>                
+                $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
+                $format .= '<div style="font-family: sans-serif;margin-left: 15px">              
                     <br/>
                     <div>
                     '.$barcode.'
@@ -131,9 +132,8 @@ class WarehouseLocationController extends Controller
             $pdf = app()->make('dompdf.wrapper');
             $pdf->setPaper('c7', 'landscape');   
             $format = '<body>';
-            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
-            $format .= '<div style="font-family: sans-serif;margin-left: 15px">
-                    <br/>                
+            $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
+            $format .= '<div style="font-family: sans-serif;margin-left: 15px">                                
                     <br/>
                     <div>
                     '.$barcode.'

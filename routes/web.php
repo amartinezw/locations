@@ -59,7 +59,7 @@ $router->group([
     $router->post('/warehouses/update', 'WarehouseController@update');
     $router->post('/warehouses/destroy', 'WarehouseController@destroy');
     $router->post('warehouselocations/editlocationactive', 'WarehouseLocationController@editLocationActive');
-    $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');
+    $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');    
     $router->post('locationvariation/locateitemscan', 'LocationVariationController@locateItemScan');
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
     $router->post('locationvariation/locateitemweb', 'LocationVariationController@locateItemWeb');
