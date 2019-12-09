@@ -9,6 +9,11 @@ use App\Repositories\WarehouseLocationRepository;
 use App\WarehouseLocation;
 use Illuminate\Http\Request;
 use Milon\Barcode\DNS1D;
+use Zebra\Client;
+use Zebra\Zpl\Image;
+use Zebra\Zpl\Builder;
+use Zebra\Zpl\GdDecoder;
+
 use Validator;
 
 class WarehouseLocationController extends Controller
@@ -80,7 +85,6 @@ class WarehouseLocationController extends Controller
     {
         try {
             return $this->warehouseLocationRepository->editLocationActive($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e->getMessage());
         }
@@ -95,7 +99,6 @@ class WarehouseLocationController extends Controller
     {
         try {
             return $this->warehouseLocationRepository->getlocations($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e->getMessage());
         }
@@ -113,35 +116,35 @@ class WarehouseLocationController extends Controller
             $rack = Rack::find($request->rack_id);
             $warehouseLocations = $rack->warehouselocations;
             $pdf = app()->make('dompdf.wrapper');
-            $pdf->setPaper('c7', 'landscape');   
+            $pdf->setPaper('c7', 'landscape');
             $format = '<body>';
             foreach ($warehouseLocations as $key => $wl) {
-                $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
+                $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($wl->mapped_string, "C128", 2, 130, array(5,5,5)) . '" alt="barcode"   /><br/>'.$wl->mapped_string.'</div>';
                 $format .= '<div style="font-family: sans-serif;margin-left: 15px">              
                     <br/>
                     <div>
                     '.$barcode.'
                     </div>                   
                 </div>';
-            }            
-            $format .= '</body>';            
+            }
+            $format .= '</body>';
             $pdf->loadHTML($format);
             return $pdf->stream();
-        } else if ($request->has('warehouselocation_id')) {
-            $warehouselocation = WarehouseLocation::find($request->warehouselocation_id);            
+        } elseif ($request->has('warehouselocation_id')) {
+            $warehouselocation = WarehouseLocation::find($request->warehouselocation_id);
             $pdf = app()->make('dompdf.wrapper');
-            $pdf->setPaper('c7', 'landscape');   
+            $pdf->setPaper('c7', 'landscape');
             $format = '<body>';
-            $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128",2,130,array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
+            $barcode = '<div style="display:inline-block;text-align:center;font-size:35px"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($warehouselocation->mapped_string, "C128", 2, 130, array(5,5,5)) . '" alt="barcode"   /><br/>'.$warehouselocation->mapped_string.'</div>';
             $format .= '<div style="font-family: sans-serif;margin-left: 15px">                                
                     <br/>
                     <div>
                     '.$barcode.'
                     </div>                   
-                </div>';                        
-            $format .= '</body>';            
+                </div>';
+            $format .= '</body>';
             $pdf->loadHTML($format);
-            return $pdf->stream();            
+            return $pdf->stream();
         }
         return ApiResponses::badRequest();
     }
@@ -155,11 +158,9 @@ class WarehouseLocationController extends Controller
     {
         try {
             return $this->warehouseLocationRepository->getblocks($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
-
     }
 
     /**
@@ -172,7 +173,6 @@ class WarehouseLocationController extends Controller
     {
         try {
             return $this->warehouseLocationRepository->getracks($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
         }
@@ -194,14 +194,34 @@ class WarehouseLocationController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Inserta bloques en un rack.
      *
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function insertBlocks(Request $request)
     {
+        return $this->warehouseLocationRepository->insertBlocks($request->rack_id);
+    }
 
+    /**
+     * Display the specified resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function zplTest()
+    {
+        $imageString = DNS1D::getBarcodePNG('R01-B01-N01', "C128", 2, 130, array(5,5,5));
+        $imageString = base64_decode($imageString);
+        $decoder = GdDecoder::fromString($imageString);
+        $image = new Image($decoder);
+
+        $zpl = new Builder();
+        $zpl->fo(50, 50)->gf($image)->fs();
+
+        $client = new Client('172.17.31.142');
+        $client->send($zpl);
+        return ApiResponses::ok('Intentando imprimir...');
     }
 
     /**

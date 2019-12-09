@@ -12,7 +12,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return phpinfo();
 });
 
 $router->get('/documentacion', function () use ($router) {
@@ -20,14 +20,16 @@ $router->get('/documentacion', function () use ($router) {
 });
 
 $router->get('/routes', function () use ($router) {
-	dump(app('router')->getRoutes());
+    dump(app('router')->getRoutes());
 });
+
+$router->get('warehouselocations/zpltest', 'WarehouseLocationController@zplTest');
 
 $router->get('/check-token/{token}', 'UserApiController@checkToken');
 
 $router->group([
     'middleware' => 'auth:api',
-    'prefix'	 => 'api/v1',
+    'prefix'     => 'api/v1',
 ], function (\Laravel\Lumen\Routing\Router $router) {
     $router->get('/test-client', function () {
         return 'autenticado.';
@@ -59,7 +61,8 @@ $router->group([
     $router->post('/warehouses/update', 'WarehouseController@update');
     $router->post('/warehouses/destroy', 'WarehouseController@destroy');
     $router->post('warehouselocations/editlocationactive', 'WarehouseLocationController@editLocationActive');
-    $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');    
+    $router->post('warehouselocations/maplocations', 'WarehouseLocationController@maplocations');
+    $router->post('warehouselocations/insertblocks', 'WarehouseLocationController@insertBlocks');
     $router->post('locationvariation/locateitemscan', 'LocationVariationController@locateItemScan');
     $router->post('locationvariation/moveitemscan', 'LocationVariationController@moveItemScan');
     $router->post('locationvariation/locateitemweb', 'LocationVariationController@locateItemWeb');

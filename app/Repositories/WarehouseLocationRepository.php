@@ -12,7 +12,6 @@ use App\Http\Controllers\ApiResponses;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use DB;
 
-
 class WarehouseLocationRepository extends BaseRepository
 {
     protected $model = 'App\WarehouseLocation';
@@ -33,7 +32,7 @@ class WarehouseLocationRepository extends BaseRepository
             return ApiResponses::badRequest('La bodega no existe.');
         }
 
-    	$newRack = WarehouseLocation::where('warehouse_id', $warehouse_id)->max('rack') + 1;
+        $newRack = WarehouseLocation::where('warehouse_id', $warehouse_id)->max('rack') + 1;
 
         $rack = new Rack;
         $rack->name = $newRack;
@@ -65,27 +64,55 @@ class WarehouseLocationRepository extends BaseRepository
             }
         }
 
-     	return ApiResponses::created();
+        return ApiResponses::created();
     }
+    
+    public function insertBlocks($rack_id)
+    {
+        $rack = Rack::find($rack_id);
+        if (empty($rack)) {
+            return ApiResponses::badRequest('El rack no existe.');
+        }
+        $newBlock = WarehouseLocation::where('rack_id', $rack_id)->max('block') + 1;
+        $levels = WarehouseLocation::where('rack_id', $rack_id)->max('level');
+        for ($i=1; $i <= $levels; $i++) {
+            $r = $rack->name < 10 ? 'R0'.$rack->name : 'R'.$rack->name;
+            $b = $newBlock < 10 ? 'B0'.$newBlock : 'B'.$newBlock;
+            $n = $i < 10 ? 'N0'.$i : 'N'.$i;
+            $mapped_string = $r.'-'.$b.'-'.$n;
+            $warehouseLocation = new WarehouseLocation;
+            $warehouseLocation->warehouse_id = $rack->warehouse_id;
+            $warehouseLocation->rack_id = $rack->id;
+            $warehouseLocation->block = $newBlock;
+            $warehouseLocation->level = $i;
+            $warehouseLocation->rack = $rack->name;
+            $warehouseLocation->side = 1;
+            $warehouseLocation->mapped_string = $mapped_string;
+            $warehouseLocation->save();
+        }
 
+        return ApiResponses::created();
+    }
 
     public function getlocations(Request $request)
     {
         $column   = 'warehouse_id';
         $order  = 'asc';
-        if($request->column!='undefined' && !is_null($request->column)){
+        if ($request->column!='undefined' && !is_null($request->column)) {
             $column = $request->column;
             $order  = $request->order;
         }
-        if($request->q)
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string','LIKE','%'.$request->q.'%')->orderBy($column,$order)->paginate($request->per_page);
-        else
-            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column,$order)->paginate($request->per_page);
+        if ($request->q) {
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->where('mapped_string', 'LIKE', '%'.$request->q.'%')->orderBy($column, $order)->paginate($request->per_page);
+        } else {
+            $warehouserepo = WarehouseLocation::with('warehouse', 'warehouse.store')->where('warehouse_id', $request->warehouse_id)->orderBy($column, $order)->paginate($request->per_page);
+        }
 
         return ApiResponses::okObject($warehouserepo);
-    }    
+    }
 
-    public function editLocationActive(Request $request){
+    public function editLocationActive(Request $request)
+    {
         $warehouseLocation = WarehouseLocation::find($request->id);
         if (empty($warehouseLocation)) {
             return ApiResponses::badRequest('La localización no existe.');
@@ -119,42 +146,42 @@ class WarehouseLocationRepository extends BaseRepository
                     $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
                 }
                 if ($request->has('sku') && strlen($request->sku) > 8) {
-                    $where[] = ['internal_reference', '=', $request->sku];    
+                    $where[] = ['internal_reference', '=', $request->sku];
                 }
                 if ($request->has('active') && $request->active >= 0) {
                     $where[] = ['activation_disabled', '=', $request->active];
                 }
                 if ($request->has('category') && $request->category > 0) {
-                    if (!$request->subcategory > 0 ) {
+                    if (!$request->subcategory > 0) {
                         $onlyParent = true;
                     } else {
                         $onlyParent = false;
                     }
                     if ($request->has('category') && $request->category > 0 && !$request->subcategory > 0) {
                         $whereCategory[] = ['id', '=', $request->category];
-                    }else {
+                    } else {
                         $whereCategory[] = ['id', '=', $request->subcategory];
                     }
                 }
             }
 
-            $racks = Rack::select('id', 'name as rack')->with(['items' => function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
-                $q->select('product_id')->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+            $racks = Rack::select('id', 'name as rack')->with(['items' => function ($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+                $q->select('product_id')->whereHas('product', function ($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
                     $q->where($where);
-                    $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                    $q->whereHas('parentCategory', function ($q) use ($whereCategory, $onlyParent) {
                         if ($onlyParent === true) {
-                            $q->whereHas('category', function($q) use ($whereCategory) {
+                            $q->whereHas('category', function ($q) use ($whereCategory) {
                                 $q->whereHas('parent', function ($q) use ($whereCategory) {
                                     $q->where($whereCategory);
                                 });
                             });
                         } else {
-                            $q->whereHas('category', function($q) use ($whereCategory) {
+                            $q->whereHas('category', function ($q) use ($whereCategory) {
                                 $q->where($whereCategory);
                             });
                         }
                     });
-                    $q->whereHas('variations', function($q) use ($whereSku) {
+                    $q->whereHas('variations', function ($q) use ($whereSku) {
                         $q->where($whereSku);
                     });
                 });
@@ -177,7 +204,6 @@ class WarehouseLocationRepository extends BaseRepository
                 'message' => $e->getMessage()
             ]);
         }
-
     }
 
     public function getblocks(Request $request)
@@ -194,43 +220,43 @@ class WarehouseLocationRepository extends BaseRepository
                 $whereSku[] = ['sku', 'LIKE', '%'.$request->sku.'%'];
             }
             if ($request->has('sku') && strlen($request->sku) > 8) {
-                $where[] = ['internal_reference', '=', $request->sku];    
+                $where[] = ['internal_reference', '=', $request->sku];
             }
             if ($request->has('active') && $request->active >= 0) {
                 $where[] = ['activation_disabled', '=', $request->active];
             }
             if ($request->has('category') && $request->category > 0) {
-                if (!$request->subcategory > 0 ) {
+                if (!$request->subcategory > 0) {
                     $onlyParent = true;
                 } else {
                     $onlyParent = false;
                 }
                 if ($request->has('category') && $request->category > 0 && !( $request->subcategory > 0 )) {
                     $whereCategory[] = ['id', '=', $request->category];
-                }else {
+                } else {
                     $whereCategory[] = ['id', '=', $request->subcategory];
                 }
             }
         }
-        $blocks = WarehouseLocation::select('id','rack','block','level','side','mapped_string', 'active')
+        $blocks = WarehouseLocation::select('id', 'rack', 'block', 'level', 'side', 'mapped_string', 'active')
 
-            ->withCount(['items' => function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
-                $q->whereHas('product', function($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+            ->withCount(['items' => function ($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
+                $q->whereHas('product', function ($q) use ($where, $whereCategory, $onlyParent, $whereSku) {
                     $q->where($where);
-                    $q->whereHas('parentCategory', function($q) use ($whereCategory, $onlyParent) {
+                    $q->whereHas('parentCategory', function ($q) use ($whereCategory, $onlyParent) {
                         if ($onlyParent === true) {
-                            $q->whereHas('category', function($q) use ($whereCategory) {
+                            $q->whereHas('category', function ($q) use ($whereCategory) {
                                 $q->whereHas('parent', function ($q) use ($whereCategory) {
                                     $q->where($whereCategory);
                                 });
                             });
                         } else {
-                            $q->whereHas('category', function($q) use ($whereCategory) {
+                            $q->whereHas('category', function ($q) use ($whereCategory) {
                                 $q->where($whereCategory);
                             });
                         }
                     });
-                    $q->whereHas('variations', function($q) use ($whereSku) {
+                    $q->whereHas('variations', function ($q) use ($whereSku) {
                         $q->where($whereSku);
                     });
                 });
