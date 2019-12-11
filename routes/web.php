@@ -42,6 +42,7 @@ $router->group([
     $router->get('warehouselocations/printsticker', 'WarehouseLocationController@printSticker');
     $router->get('locationvariation/getsummary', 'LocationVariationController@getSummary');
     $router->get('locationvariation/getall', 'LocationVariationController@getall');
+    $router->get('locationvariation/importlocations', 'LocationVariationController@importLocations');
     $router->get('locationvariation/getlatest', 'LocationVariationController@getlatest');
     $router->get('locationvariation/getlocationsofitem', 'LocationVariationController@getLocationsOfItem');
     $router->get('locationvariation/getlocationsofproduct', 'LocationVariationController@getLocationsOfProduct');

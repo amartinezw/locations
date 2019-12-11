@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Http\Controllers\ApiResponses;
+use App\Http\Controllers\Controller;
+use App\LocationVariation;
 use App\Repositories\LocationVariationRepository;
+use App\Variation;
+use App\WarehouseLocation;
+use Illuminate\Http\Request;
 use \Milon\Barcode\DNS1D;
 
 class LocationVariationController extends Controller
@@ -19,7 +22,7 @@ class LocationVariationController extends Controller
        2   => 'Rebaja',
        3   => 'Promoción',
        4   => 'Liquidación'
-   ];
+    ];
 
     public function __construct(Request $request)
     {
@@ -43,7 +46,6 @@ class LocationVariationController extends Controller
      */
     public function store(Request $request)
     {
-
     }
 
     /**
@@ -56,7 +58,6 @@ class LocationVariationController extends Controller
     {
         try {
             return $this->locationVariationRepository->getLocationsOfItem($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -72,7 +73,6 @@ class LocationVariationController extends Controller
     {
         try {
             return $this->locationVariationRepository->getLocationsOfProduct($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -93,7 +93,6 @@ class LocationVariationController extends Controller
         try {
             $respuesta = $this->locationVariationRepository->locateItem($request);
             return $respuesta;
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -112,7 +111,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->locateItem($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
         }
@@ -132,7 +130,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->removeItemFromLocation($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
         }
@@ -152,7 +149,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->moveItem($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
         }
@@ -172,7 +168,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->moveItem($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError();
         }
@@ -188,7 +183,6 @@ class LocationVariationController extends Controller
     {
         try {
             return $this->locationVariationRepository->getall($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -208,7 +202,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->getItemsInLocation($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -228,7 +221,6 @@ class LocationVariationController extends Controller
 
         try {
             return $this->locationVariationRepository->getLatest($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -244,7 +236,6 @@ class LocationVariationController extends Controller
     {
         try {
             return $this->locationVariationRepository->getSummary($request);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -268,22 +259,22 @@ class LocationVariationController extends Controller
             $pdf->setPaper($paper_size);
         }
         if ($request->has('product_id')) {
-            if (is_numeric($request->product_id)) {                
-                $products[0] = \App\Product::find($request->product_id);    
+            if (is_numeric($request->product_id)) {
+                $products[0] = \App\Product::find($request->product_id);
             } else {
                 return ApiResponses::badRequest('product_id debe tener un valor numérico');
             }
-        } else if ($request->has('warehouselocation_id')) {
+        } elseif ($request->has('warehouselocation_id')) {
             if (is_numeric($request->warehouselocation_id)) {
-                $products = \App\Product::whereHas('locations', function($q) use ($request) {
+                $products = \App\Product::whereHas('locations', function ($q) use ($request) {
                     $q->where('warehouselocation_id', $request->warehouselocation_id);
                 })->get();
             }
-        }        
+        }
         foreach ($products as $key => $product) {
-            $variations = $product->variations;            
+            $variations = $product->variations;
             if (sizeof($product->firstimg) > 0) {
-                $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';                
+                $image = '<img src="https://dsnegsjxz63ti.cloudfront.net/images/pg/g_'.$product->firstimg[0]->file.'" alt="" height="150px"/>';
             } else {
                 $image = '';
             }
@@ -328,7 +319,6 @@ class LocationVariationController extends Controller
                                     <td align="center">'.$v->color->name.'</td>
                                 </tr>';
                 }
-
             }
             $tableSKUS = '<table>
                             <tr>
@@ -351,8 +341,8 @@ class LocationVariationController extends Controller
                             </tr>                        
                             '.$drawSKUS.'
                         </table>';
-            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128",2,70,array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
-            if ($request->get('format') === "landscape") {                
+            $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128", 2, 70, array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
+            if ($request->get('format') === "landscape") {
                 $format .= '<div style="font-family: sans-serif;page-break-after: always">
                     <div style="display:inline-block">
                     '.$image.'
@@ -382,7 +372,7 @@ class LocationVariationController extends Controller
                     '.$tableSKUS.'
                     </div>
                 </div>';
-            }   
+            }
         }
         $head = '<head>
                 <style>
@@ -394,7 +384,52 @@ class LocationVariationController extends Controller
             </head>';
         $body = $head.'<body>'.$format.'</body>';
         $pdf->loadHTML($format);
-        return $pdf->stream();        
+        return $pdf->stream();
+    }
+
+    public function importLocations()
+    {
+                
+        $file_n = storage_path('app/ubicaciones_restantes.csv');
+        $file = fopen($file_n, "r");
+        $all_data = array();
+        while (($data = fgetcsv($file, 1000, ",")) !== false) {
+             $variation_id = $data[0];
+             $locationString = $data[1];
+             $locationStringArray = explode('-', $locationString);
+            foreach ($locationStringArray as $key => $v) {
+                $res = preg_replace("/[^0-9]/", "", $v);
+                $res = intval($res);
+                if ($key == 0) {
+                    $letter = 'R';
+                }
+                if ($key == 1) {
+                    $letter = 'B';
+                }
+                if ($key == 2) {
+                    $letter = 'N';
+                }
+
+                if ($res < 10) {
+                    $locationStringArray[$key] = $letter.'0'.$res;
+                } else {
+                    $locationStringArray[$key] = $letter.$res;
+                }
+            }
+            $locationString = implode('-', $locationStringArray);
+             $variation = Variation::find($variation_id);
+             $warehouselocation = WarehouseLocation::where('mapped_string', $locationString)->first();
+            if (!empty($warehouselocation) && !empty($variation)) {
+                $lv = new LocationVariation;
+                $lv->variation_id = $variation->id;
+                $lv->warehouselocation_id = $warehouselocation->id;
+                $lv->product_id = $variation->product_id;
+                $lv->user_id = 1;
+                $lv->save();
+            }
+        }
+
+        return ApiResponses::ok();
     }
 
     /**
@@ -429,5 +464,5 @@ class LocationVariationController extends Controller
     public function destroy($id)
     {
         //
-    }    
+    }
 }
