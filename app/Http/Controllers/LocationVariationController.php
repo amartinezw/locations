@@ -255,7 +255,7 @@ class LocationVariationController extends Controller
         $pdf->setPaper($paper_size);
         $format = '';
         if ($request->get('format') === "landscape") {
-            $paper_size = array(0,0,649.13,359.21);
+            $paper_size = array(0,0,649.13,400);
             $pdf->setPaper($paper_size);
         }
         if ($request->has('product_id')) {
