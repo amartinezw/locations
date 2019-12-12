@@ -370,7 +370,10 @@ class LocationVariationRepository extends BaseRepository
             if (empty($locationVariationsRemove)) {
                 return ApiResponses::notFound('No se encontró el estilo en la ubicacion.');
             }
-            return ApiResponses::ok();
+            $responseObject = [
+              'product_id' => $variation->product_id
+            ];
+            return ApiResponses::okObject($responseObject);
         } else {
             $variation = Variation::where('sku', $request->sku)->first();
             if (empty($variation)) {
@@ -388,7 +391,10 @@ class LocationVariationRepository extends BaseRepository
                         $lv->delete();
                     }
                 }
-                return ApiResponses::ok();
+                $responseObject = [
+                  'product_id' => $variation->product_id
+                ];
+                return ApiResponses::okObject($responseObject);
             } else {
                 $locationVariation = LocationVariation::where([
                     'warehouselocation_id' => $request->warehouselocation_id,
@@ -403,7 +409,7 @@ class LocationVariationRepository extends BaseRepository
                       'deletedSize' => $variation->name,
                     ];
                     $locationVariation->delete();
-                    return ApiResponses::ok($responseObject);
+                    return ApiResponses::okObject($responseObject);
                 }
             }
         }
