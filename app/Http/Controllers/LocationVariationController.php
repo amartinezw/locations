@@ -251,7 +251,7 @@ class LocationVariationController extends Controller
     {
         $products = [];
         $pdf = app()->make('dompdf.wrapper');
-        $paper_size = array(0,0,359.21,550);
+        $paper_size = array(0,0,359.21,650);
         $pdf->setPaper($paper_size);
         $format = '';
         if ($request->get('format') === "landscape") {
@@ -313,7 +313,7 @@ class LocationVariationController extends Controller
             foreach ($variations as $key => $v) {
                 if ($v->active == 1) {
                     $drawSKUS .= '<tr>
-                                    <td align="center">'.$v->sku.'</td>
+                                    <td align="center" style="font-size: 30px">'.$v->sku.'</td>
                                     <td align="center">'.$v->name.'</td>
                                     <td align="center">'.$v->stock.'</td>
                                     <td align="center">'.$v->color->name.'</td>
