@@ -344,31 +344,31 @@ class LocationVariationController extends Controller
             $barcode = '<div style="display:inline-block;text-align:center"><img src="data:image/png;base64,' . DNS1D::getBarcodePNG($product->internal_reference, "C128", 2, 70, array(5,5,5)) . '" alt="barcode"   /><br/>'.$product->internal_reference.'</div>';
             if ($request->get('format') === "landscape") {
                 $format .= '<div style="font-family: sans-serif;page-break-after: always">
-                    <div style="display:inline-block">
+                    <div style="display:inline-block; font-size: 20px">
                     '.$image.'
                     </div>
-                    <div style="display:inline-block;margin-left: 20px">
+                    <div style="display:inline-block;margin-left: 20px; font-size: 20px">
                         '.$tableDescription.'
                     </div>
-                    <div style="display:inline-block;margin-left: 30px">
+                    <div style="display:inline-block;margin-left: 30px; font-size: 20px">
                         '.$tableSKUS.'
                     </div>
-                    <div>
+                    <div style="font-size: 20px">
                     '.$barcode.'
                     </div>                   
                 </div>';
             } else {
                 $format .= '<div style="font-family: sans-serif;page-break-after: always">
-                    <div style="margin-bottom: 45px">
+                    <div style="margin-bottom: 45px; font-size: 20px">
                     '.$barcode.'
                     </div>
-                    <div style="display:inline-block;">
+                    <div style="display:inline-block; font-size: 20px">
                         '.$tableDescription.'
                     </div>
-                    <div style="display:inline-block;margin-left: 30px;">
+                    <div style="display:inline-block;margin-left: 30px; font-size: 20px">
                         '.$image.'
                     </div>
-                    <div>
+                    <div style="font-size: 20px">
                     '.$tableSKUS.'
                     </div>
                 </div>';
@@ -379,7 +379,8 @@ class LocationVariationController extends Controller
                     table td {
                         padding: 0 6px 0 0;
                         align: center;
-                    }
+
+                    }                   
                 </style>
             </head>';
         $body = $head.'<body>'.$format.'</body>';
@@ -390,7 +391,7 @@ class LocationVariationController extends Controller
     public function importLocations()
     {
                 
-        $file_n = storage_path('app/ubicaciones_restantes.csv');
+        $file_n = storage_path('app/locations_12_dic_2019.csv');
         $file = fopen($file_n, "r");
         $all_data = array();
         while (($data = fgetcsv($file, 1000, ",")) !== false) {
