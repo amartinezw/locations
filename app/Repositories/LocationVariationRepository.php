@@ -368,10 +368,10 @@ class LocationVariationRepository extends BaseRepository
                 'warehouselocation_id' => $request->warehouselocation_id
             ])->delete();
             if (empty($locationVariationsRemove)) {
-                return ApiResponses::notFound('No se encontró el estilo en la ubicacion.');
+                return ApiResponses::notFound('No se encontro el estilo en la ubicacion.');
             }
             $responseObject = [
-              'product_id' => $variation->product_id
+              'product_id' => $product->id
             ];
             return ApiResponses::okObject($responseObject);
         } else {
