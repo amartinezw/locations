@@ -148,13 +148,19 @@ class LocationVariationRepository extends BaseRepository
         if (empty($warehouselocation)) {
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
+        $whereSku = [];
+
+        if (!$request->has('withzeros')) {
+            $whereSku[] = ['stock', '>', 0];
+        }
 
         $responseArray = Product::with(
-            ['variations' => function ($q) use ($warehouselocation) {
+            ['variations' => function ($q) use ($warehouselocation, $whereSku) {
                 $q->select('id', 'product_id', 'name', 'sku', 'stock', 'price', 'color_id')
                     ->whereHas('locations', function ($q) use ($warehouselocation) {
                         $q->where('warehouselocation_id', $warehouselocation->id);
-                    });
+                    })
+                    ->where($whereSku);
             },
             'locations' => function ($q) {
                 $q->select('id', 'warehouselocation_id', 'product_id')->groupBy('warehouselocation_id', 'product_id');
@@ -168,8 +174,11 @@ class LocationVariationRepository extends BaseRepository
              }]
         )
         ->select('id', 'name', 'internal_reference', 'provider', 'colors_es', 'family', 'parent_name')
-        ->whereHas('locations', function ($q) use ($warehouselocation) {
+        ->whereHas('locations', function ($q) use ($warehouselocation, $whereSku) {
             $q->where('warehouselocation_id', $warehouselocation->id);
+            $q->whereHas('variation', function ($q) use ($whereSku) {
+                $q->where($whereSku);
+            });
         })->paginate($request->per_page ?: 20)->toArray();
 
         $responseArray = array_merge($responseArray, [

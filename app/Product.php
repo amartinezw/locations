@@ -34,5 +34,4 @@ class Product extends Model
     {
         return $this->hasMany('App\CategoryProduct')->with('category')->with('category.parent');
     }
-
 }

@@ -137,6 +137,9 @@ class WarehouseLocationRepository extends BaseRepository
             $where = [];
             $whereCategory = [];
             $whereSku = [];
+            if (!$request->has('withzeros')) {
+                $whereSku[] = ['stock', '>', 0];
+            }
             $onlyParent = false;
             if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
                 if ($request->has('product')) {
@@ -212,6 +215,9 @@ class WarehouseLocationRepository extends BaseRepository
         $whereCategory = [];
         $onlyParent = false;
         $whereSku = [];
+        if (!$request->has('withzeros')) {
+            $whereSku[] = ['stock', '>', 0];
+        }
         if ($request->has('product') || $request->has('sku') || $request->has('active') || $request->has('category')) {
             if ($request->has('product')) {
                 $where[] = ['name', 'LIKE', '%'.$request->product.'%'];
@@ -256,9 +262,9 @@ class WarehouseLocationRepository extends BaseRepository
                             });
                         }
                     });
-                    $q->whereHas('variations', function ($q) use ($whereSku) {
-                        $q->where($whereSku);
-                    });
+                });
+                $q->whereHas('variation', function ($q) use ($whereSku) {
+                    $q->where($whereSku);
                 });
             }])
             ->where('rack', $request->rack)
