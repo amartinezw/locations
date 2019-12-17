@@ -150,10 +150,6 @@ class LocationVariationRepository extends BaseRepository
         }
         $whereSku = [];
 
-        if (!$request->has('withzeros')) {
-            $whereSku[] = ['stock', '>', 0];
-        }
-
         $responseArray = Product::with(
             ['variations' => function ($q) use ($warehouselocation, $whereSku) {
                 $q->select('id', 'product_id', 'name', 'sku', 'stock', 'price', 'color_id')
