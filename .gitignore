@@ -8,3 +8,4 @@ Homestead.yaml
 storage/framework/*
 public/.DS_Store
 .DS_Store
+*.pem
