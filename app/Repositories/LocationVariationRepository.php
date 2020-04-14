@@ -192,33 +192,19 @@ class LocationVariationRepository extends BaseRepository
     {
         if ($request->has('skus')) {
             $skuArray = $request->skus;
-            $variations = Variation::select('id', 'sku')->whereIn('sku', $skuArray)->get();
+            $variations = Variation::with(['locations:id,variation_id,warehouselocation_id', 'locations.warehouselocation:id,mapped_string'])->select('id', 'sku')->whereIn('sku', $skuArray)->get();
             $response = [];
             foreach ($variations as $k => $var) {
-                $locations = [];
-                foreach ($var->locations as $y => $loc) {
-                    $locations[] = $loc->warehouselocation->mapped_string;
-                }
+                $locations = [$var->locations->first()['warehouselocation']['mapped_string']];
                 $response[] = ["sku" => $var->sku, "locations" => $locations];
             }
             $skus = [];
             $skus = ["skus" => $response];
-            return ApiResponses::okObject($skus);
+            return ApiResponses::okObject($response);
         }
-        $variation = Variation::where('sku', $request->sku)->first();
-        $locationvariations = LocationVariation::with('warehouselocation')
-        ->whereHas('variation', function ($q) use ($request, $variation) {
-            $q->where('product_id', $variation->product_id);
-        })
-        ->orderBy('warehouselocation_id', 'asc')->get();
+        $variation = Variation::with(['locations:id,variation_id,warehouselocation_id', 'locations.warehouselocation:id,mapped_string'])->where('sku', $request->sku)->first();
 
-        $locations = [];
-
-        foreach ($locationvariations as $k => $v) {
-            $locations[] = $v->warehouselocation->mapped_string;
-        }
-
-        $locations = array_values(array_unique($locations));
+        $locations = [$variation->locations->first()['warehouselocation']['mapped_string']];
 
         return ApiResponses::okObject($locations);
     }
