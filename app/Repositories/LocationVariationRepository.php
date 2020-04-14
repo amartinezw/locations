@@ -200,7 +200,7 @@ class LocationVariationRepository extends BaseRepository
             }
             $skus = [];
             $skus = ["skus" => $response];
-            return ApiResponses::okObject($response);
+            return ApiResponses::okObject($skus);
         }
         $variation = Variation::with(['locations:id,variation_id,warehouselocation_id', 'locations.warehouselocation:id,mapped_string'])->where('sku', $request->sku)->first();
 
