@@ -289,7 +289,6 @@ class LocationVariationRepository extends BaseRepository
             foreach ($product->variations as $key => $vs) {
                 $lvExists = LocationVariation::where([
                     'variation_id' => $vs->id,
-                    'warehouselocation_id' => $warehouselocation->id
                 ])->first();
                 if (empty($lvExists)) {
                     $lv = new LocationVariation;
@@ -299,6 +298,10 @@ class LocationVariationRepository extends BaseRepository
                     $lv->user_id = $request->user()->id;
                     $lv->save();
                     $lvCollection[] = $lv->id;
+                } else {
+                    $lvExists->warehouselocation_id = $warehouselocation->id;
+                    $lvExists->user_id = $request->user()->id;
+                    $lvExists->save();
                 }
             }
         } else {
@@ -313,7 +316,6 @@ class LocationVariationRepository extends BaseRepository
                 foreach ($variationSiblings as $key => $vs) {
                     $lvExists = LocationVariation::where([
                         'variation_id' => $vs->id,
-                        'warehouselocation_id' => $warehouselocation->id
                     ])->first();
                     if (empty($lvExists)) {
                         $lv = new LocationVariation;
@@ -323,12 +325,15 @@ class LocationVariationRepository extends BaseRepository
                         $lv->user_id = $request->user()->id;
                         $lv->save();
                         $lvCollection[] = $lv->id;
+                    } else {
+                        $lvExists->warehouselocation_id = $warehouselocation->id;
+                        $lvExists->user_id = $request->user()->id;
+                        $lvExists->save();
                     }
                 }
             } elseif (isset($request->mapped_string) && isset($request->warehouse_id)) {
                 $locationVariation = LocationVariation::where([
                     'variation_id' => $variation->id,
-                    'warehouselocation_id' => $warehouselocation->id
                 ])->first();
 
                 if (empty($locationVariation)) {
@@ -339,7 +344,9 @@ class LocationVariationRepository extends BaseRepository
                     $locationVariation->user_id = $request->user()->id;
                     $locationVariation->save();
                 } else {
-                    return ApiResponses::found('El producto ya se encuentra ubicado aqui');
+                    $locationVariation->warehouselocation_id = $warehouselocation->id;
+                    $locationVariation->user_id = $request->user()->id;
+                    $locationVariation->save();
                 }
             }
         }
