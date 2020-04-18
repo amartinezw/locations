@@ -12,7 +12,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return phpinfo();
+    return 'Locations API.';
 });
 
 $router->get('/documentacion', function () use ($router) {
