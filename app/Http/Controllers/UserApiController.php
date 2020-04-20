@@ -15,7 +15,6 @@ use Symfony\Bridge\PsrHttpMessage\Factory\DiactorosFactory;
 use Validator;
 use DB;
 
-
 class UserApiController extends Controller
 {
     protected $mUser;
@@ -92,22 +91,20 @@ class UserApiController extends Controller
             $email = $oRequest->email;
             $password = $oRequest->password;
             $credentials = ['email' => $email, 'password' => $password];
-            if (Auth::guard('web')->attempt($credentials, false, false)){
+            if (Auth::guard('web')->attempt($credentials, false, false)) {
                 $user = $this->mUser->where('email', $email)->get();
                 return response()->json([
                     'status' => 'success',
                     'code' => 200,
                     'user' => $user,
                 ])->setStatusCode(200);
-            }
-            else {
+            } else {
                 return response()->json([
                     'status' => 'error',
                     'code' => 404,
                     'message' => 'Usuario o contraseña no encontrados',
                 ])->setStatusCode(404);
             }
-
         } catch (\Exception $e) {
             // Registra error
             Log::error('Error en '.__METHOD__.' línea '.$e->getLine().':'.$e->getMessage());
@@ -126,7 +123,6 @@ class UserApiController extends Controller
     public function store(Request $oRequest)
     {
         try {
-
             $oValidator = Validator::make($oRequest->all(), [
                 'name' => 'required|min:3',
                 'email' => 'required|unique:users,email|email',
@@ -157,7 +153,6 @@ class UserApiController extends Controller
                 'code' => 200,
                 'message' => 'Usuario creado',
             ])->setStatusCode(200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -165,7 +160,6 @@ class UserApiController extends Controller
                 'message' => $e->getMessage(),
             ])->setStatusCode(500);
         }
-
     }
 
     /**
@@ -189,7 +183,7 @@ class UserApiController extends Controller
 
             //Busca usuario
             $usuario = $this->mUser->find($id);
-            if(count($usuario->roles) > 0) {
+            if (count($usuario->roles) > 0) {
                 $usuario->removeRole($usuario->roles[0]->name);
             }
             $usuario->name = $oRequest->name;
@@ -203,7 +197,6 @@ class UserApiController extends Controller
                 'code' => 200,
                 'message' => 'Usuario actualizado',
             ])->setStatusCode(200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -220,10 +213,9 @@ class UserApiController extends Controller
      */
     public function getProfile(Request $oRequest)
     {
-        try {            
-            $usuario = User::with('roles')->select('id','name','email')->where('id' , $oRequest->user()->id)->first();
+        try {
+            $usuario = User::with('roles')->select('id', 'name', 'email')->where('id', $oRequest->user()->id)->first();
             return ApiResponses::okObject($usuario);
-
         } catch (\Exception $e) {
             return ApiResponses::internalServerError($e);
         }
@@ -236,7 +228,6 @@ class UserApiController extends Controller
     public function delete($id)
     {
         try {
-
             $oValidator = Validator::make(['id' => $id], [
                 'id' => 'required|numeric',
             ]);
@@ -266,7 +257,6 @@ class UserApiController extends Controller
                 'code' => 200,
                 'message' => 'Usuario eliminado',
             ])->setStatusCode(200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'status' => 'error',
@@ -278,30 +268,26 @@ class UserApiController extends Controller
 
     public function checkToken($request)
     {
-        $server = new ResourceServer();
-        $tokens = new TokenRepository();
+        // $server = new ResourceServer();
+        // $tokens = new TokenRepository();
 
         //$psr = (new DiactorosFactory)->createRequest($request);
 
         try {
-            $psr = $server->validateAuthenticatedRequest($request);
+            // $psr = $server->validateAuthenticatedRequest($request);
 
-            $token = $tokens->find(
-                $psr->getAttribute('oauth_access_token_id')
-            );
+            // $token = $tokens->find(
+            //     $psr->getAttribute('oauth_access_token_id')
+            // );
 
-            $currentDate = new DateTime();
-            $tokenExpireDate = new DateTime($token->expires_at);
+            // $currentDate = new DateTime();
+            // $tokenExpireDate = new DateTime($token->expires_at);
 
-            $isAuthenticated = $tokenExpireDate > $currentDate ? true : false;
-
+            // $isAuthenticated = $tokenExpireDate > $currentDate ? true : false;
 
             return json_encode(array('authenticated' => $isAuthenticated));
-
         } catch (OAuthServerException $e) {
-
             return json_encode(array('error' => 'Something went wrong with authenticating. Please logout and login again.'));
         }
     }
-
 }
