@@ -190,7 +190,7 @@ class WarehouseLocationController extends Controller
         if ($v->fails()) {
             return responder()->error('field_validation_error', 'Los campos no pasaron la prueba de validacion 3. Verifique sus campos')->respond();
         }
-        return $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides);
+        return $this->warehouseLocationRepository->mapLocations($request->warehouse_id, $request->blocks, $request->levels, $request->sides, $request->portage ?? null);
     }
 
     /**

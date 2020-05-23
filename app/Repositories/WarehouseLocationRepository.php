@@ -24,7 +24,7 @@ class WarehouseLocationRepository extends BaseRepository
      * @param WarehouseLocation $warehouseLocation
      * @return \Illuminate\Http\Response
      */
-    public function mapLocations($warehouse_id, $blocks, $levels, $sides)
+    public function mapLocations($warehouse_id, $blocks, $levels, $sides, $portage = null)
     {
 
         $warehouse = Warehouse::find($warehouse_id);
@@ -32,7 +32,13 @@ class WarehouseLocationRepository extends BaseRepository
             return ApiResponses::badRequest('La bodega no existe.');
         }
 
-        $newRack = WarehouseLocation::where('warehouse_id', $warehouse_id)->max('rack') + 1;
+        if (null !== $portage) {
+            $newRack = 1;
+            $prefix = 'P';
+        } else {
+            $newRack = WarehouseLocation::where('warehouse_id', $warehouse_id)->max('rack') + 1;
+            $prefix = 'R';
+        }
 
         $rack = new Rack;
         $rack->name = $newRack;
@@ -48,7 +54,7 @@ class WarehouseLocationRepository extends BaseRepository
                 $warehouseLocation->level = $l;
                 $warehouseLocation->rack = $newRack;
                 $warehouseLocation->side = 1;
-                $warehouseLocation->mapped_string = 'R'.$newRack.'-A'.$b.'-N'.$l;
+                $warehouseLocation->mapped_string = $prefix.$newRack.'-A'.$b.'-N'.$l;
                 $warehouseLocation->save();
                 if ($sides == 2) {
                     $warehouseLocation = new WarehouseLocation;
@@ -58,7 +64,7 @@ class WarehouseLocationRepository extends BaseRepository
                     $warehouseLocation->level = $l;
                     $warehouseLocation->rack = $newRack;
                     $warehouseLocation->side = 2;
-                    $warehouseLocation->mapped_string = 'R'.$newRack.'-B'.$b.'-N'.$l;
+                    $warehouseLocation->mapped_string = $prefix.$newRack.'-B'.$b.'-N'.$l;
                     $warehouseLocation->save();
                 }
             }
