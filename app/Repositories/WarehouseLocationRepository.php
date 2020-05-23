@@ -33,7 +33,7 @@ class WarehouseLocationRepository extends BaseRepository
         }
 
         if (null !== $portage) {
-            $newRack = 1;
+            $newRack = Rack::where('warehouse_id', $warehouse_id)->latest('created_at')->first()->name + 1;
             $prefix = 'P';
         } else {
             $newRack = WarehouseLocation::where('warehouse_id', $warehouse_id)->max('rack') + 1;
