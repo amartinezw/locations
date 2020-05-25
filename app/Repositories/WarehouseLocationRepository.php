@@ -54,7 +54,7 @@ class WarehouseLocationRepository extends BaseRepository
                 $warehouseLocation->level = $l;
                 $warehouseLocation->rack = $newRack;
                 $warehouseLocation->side = 1;
-                $warehouseLocation->mapped_string = $prefix.$newRack.'-A'.$b.'-N'.$l;
+                $warehouseLocation->mapped_string = $prefix.$newRack.'-B'.$b.'-N'.$l;
                 $warehouseLocation->save();
                 if ($sides == 2) {
                     $warehouseLocation = new WarehouseLocation;
@@ -64,7 +64,7 @@ class WarehouseLocationRepository extends BaseRepository
                     $warehouseLocation->level = $l;
                     $warehouseLocation->rack = $newRack;
                     $warehouseLocation->side = 2;
-                    $warehouseLocation->mapped_string = $prefix.$newRack.'-B'.$b.'-N'.$l;
+                    $warehouseLocation->mapped_string = $prefix.$newRack.'-A'.$b.'-N'.$l;
                     $warehouseLocation->save();
                 }
             }
