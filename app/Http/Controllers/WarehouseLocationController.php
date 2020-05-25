@@ -76,6 +76,34 @@ class WarehouseLocationController extends Controller
         return ApiResponses::ok();
     }
 
+    public function updatePortageLocations()
+    {
+        $warehouselocations = WarehouseLocation::where('id', '>', 2263)->get();
+        foreach ($warehouselocations as $key => $wl) {
+            $rack = 'P'.$wl->rack;
+            $block = 'B'.$wl->block;
+            $level = 'N'.$wl->level;
+            if ($wl->rack < 10) {
+                $rack = 'P0'.$wl->rack;
+                $change = true;
+            }
+            if ($wl->block < 10) {
+                $block = 'B0'.$wl->block;
+                $change = true;
+            }
+            if ($wl->level < 10) {
+                $level = 'N0'.$wl->level;
+                $change = true;
+            }
+            if ($change === true) {
+                $mapped_string = $rack.'-'.$block.'-'.$level;
+                $wl->mapped_string = $mapped_string;
+                $wl->save();
+            }
+        }
+        return ApiResponses::ok();
+    }
+
     /**
      * Obtener todas las ubicaciones de determinada Bodega.
      *
