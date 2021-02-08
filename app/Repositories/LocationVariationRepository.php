@@ -216,7 +216,7 @@ class LocationVariationRepository extends BaseRepository
     {
         if (is_numeric($request->sku)) {
             $where = [];
-            if (strlen($request->sku) > 7) {
+            if (strlen($request->sku) > 14) {
                 $where = ['internal_reference' => $request->sku];
             } else {
                 $variation = Variation::where('sku', $request->sku)->first();
@@ -269,29 +269,20 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
 
-        if (strlen($request->sku) > 7) {
+        if (strlen($request->sku) > 13) {
             $product = Product::where('internal_reference', $request->sku)->first();
             if (empty($product)) {
                 return ApiResponses::notFound('No se encontro el estilo a ubicar.');
             }
             $productId = $product->id;
             foreach ($product->variations as $key => $vs) {
-                $lvExists = LocationVariation::where([
-                    'variation_id' => $vs->id,
-                ])->first();
-                if (empty($lvExists)) {
-                    $lv = new LocationVariation;
-                    $lv->warehouselocation_id = $warehouselocation->id;
-                    $lv->variation_id = $vs->id;
-                    $lv->product_id = $vs->product_id;
-                    $lv->user_id = $request->user()->id;
-                    $lv->save();
-                    $lvCollection[] = $lv->id;
-                } else {
-                    $lvExists->warehouselocation_id = $warehouselocation->id;
-                    $lvExists->user_id = $request->user()->id;
-                    $lvExists->save();
-                }
+                $lv = new LocationVariation;
+                $lv->warehouselocation_id = $warehouselocation->id;
+                $lv->variation_id = $vs->id;
+                $lv->product_id = $vs->product_id;
+                $lv->user_id = $request->user()->id;
+                $lv->save();
+                $lvCollection[] = $lv->id;
             }
         } else {
             $variation = Variation::where('sku', $request->sku)->first();
