@@ -195,7 +195,10 @@ class LocationVariationRepository extends BaseRepository
             $variations = Variation::with(['locations:id,variation_id,warehouselocation_id', 'locations.warehouselocation:id,mapped_string'])->select('id', 'sku')->whereIn('sku', $skuArray)->get();
             $response = [];
             foreach ($variations as $k => $var) {
-                $locations = [$var->locations->first()['warehouselocation']['mapped_string']];
+                $locations = [];
+                foreach ($var->locations as $y => $loc) {
+                    $locations[] = $loc->warehouselocation->mapped_string;
+                }
                 $response[] = ["sku" => $var->sku, "locations" => $locations];
             }
             $skus = [];
@@ -300,40 +303,21 @@ class LocationVariationRepository extends BaseRepository
             if ($request->withSiblings == "true") {
                 $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
                 foreach ($variationSiblings as $key => $vs) {
-                    $lvExists = LocationVariation::where([
-                        'variation_id' => $vs->id,
-                    ])->first();
-                    if (empty($lvExists)) {
-                        $lv = new LocationVariation;
-                        $lv->warehouselocation_id = $warehouselocation->id;
-                        $lv->variation_id = $vs->id;
-                        $lv->product_id = $vs->product_id;
-                        $lv->user_id = $request->user()->id;
-                        $lv->save();
-                        $lvCollection[] = $lv->id;
-                    } else {
-                        $lvExists->warehouselocation_id = $warehouselocation->id;
-                        $lvExists->user_id = $request->user()->id;
-                        $lvExists->save();
-                    }
+                    $lv = new LocationVariation;
+                    $lv->warehouselocation_id = $warehouselocation->id;
+                    $lv->variation_id = $vs->id;
+                    $lv->product_id = $vs->product_id;
+                    $lv->user_id = $request->user()->id;
+                    $lv->save();
+                    $lvCollection[] = $lv->id;
                 }
             } elseif (isset($request->mapped_string) && isset($request->warehouse_id)) {
-                $locationVariation = LocationVariation::where([
-                    'variation_id' => $variation->id,
-                ])->first();
-
-                if (empty($locationVariation)) {
-                    $locationVariation = new LocationVariation;
-                    $locationVariation->warehouselocation_id = $warehouselocation->id;
-                    $locationVariation->variation_id = $variation->id;
-                    $locationVariation->product_id = $variation->product_id;
-                    $locationVariation->user_id = $request->user()->id;
-                    $locationVariation->save();
-                } else {
-                    $locationVariation->warehouselocation_id = $warehouselocation->id;
-                    $locationVariation->user_id = $request->user()->id;
-                    $locationVariation->save();
-                }
+                $locationVariation = new LocationVariation;
+                $locationVariation->warehouselocation_id = $warehouselocation->id;
+                $locationVariation->variation_id = $variation->id;
+                $locationVariation->product_id = $variation->product_id;
+                $locationVariation->user_id = $request->user()->id;
+                $locationVariation->save();
             }
         }
 
