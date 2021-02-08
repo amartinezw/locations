@@ -276,13 +276,19 @@ class LocationVariationRepository extends BaseRepository
             }
             $productId = $product->id;
             foreach ($product->variations as $key => $vs) {
-                $lv = new LocationVariation;
-                $lv->warehouselocation_id = $warehouselocation->id;
-                $lv->variation_id = $vs->id;
-                $lv->product_id = $vs->product_id;
-                $lv->user_id = $request->user()->id;
-                $lv->save();
-                $lvCollection[] = $lv->id;
+                $lvExists = LocationVariation::where([
+                    'variation_id' => $vs->id,
+                    'warehouselocation_id' => $warehouselocation->id
+                ])->first();
+                if (empty($lvExists)) {
+                    $lv = new LocationVariation;
+                    $lv->warehouselocation_id = $warehouselocation->id;
+                    $lv->variation_id = $vs->id;
+                    $lv->product_id = $vs->product_id;
+                    $lv->user_id = $request->user()->id;
+                    $lv->save();
+                    $lvCollection[] = $lv->id;
+                }
             }
         } else {
             $variation = Variation::where('sku', $request->sku)->first();
@@ -294,21 +300,33 @@ class LocationVariationRepository extends BaseRepository
             if ($request->withSiblings == "true") {
                 $variationSiblings = Variation::where('product_id', $variation->product_id)->get();
                 foreach ($variationSiblings as $key => $vs) {
-                    $lv = new LocationVariation;
-                    $lv->warehouselocation_id = $warehouselocation->id;
-                    $lv->variation_id = $vs->id;
-                    $lv->product_id = $vs->product_id;
-                    $lv->user_id = $request->user()->id;
-                    $lv->save();
-                    $lvCollection[] = $lv->id;
+                    $lvExists = LocationVariation::where([
+                        'variation_id' => $vs->id,
+                        'warehouselocation_id' => $warehouselocation->id
+                    ])->first();
+                    if (empty($lvExists)) {
+                        $lv = new LocationVariation;
+                        $lv->warehouselocation_id = $warehouselocation->id;
+                        $lv->variation_id = $vs->id;
+                        $lv->product_id = $vs->product_id;
+                        $lv->user_id = $request->user()->id;
+                        $lv->save();
+                        $lvCollection[] = $lv->id;
+                    }
                 }
             } elseif (isset($request->mapped_string) && isset($request->warehouse_id)) {
-                $locationVariation = new LocationVariation;
-                $locationVariation->warehouselocation_id = $warehouselocation->id;
-                $locationVariation->variation_id = $variation->id;
-                $locationVariation->product_id = $variation->product_id;
-                $locationVariation->user_id = $request->user()->id;
-                $locationVariation->save();
+                $lvExists = LocationVariation::where([
+                    'variation_id' => $variation->id,
+                    'warehouselocation_id' => $warehouselocation->id
+                ])->first();
+                if (empty($lvExists)) {
+                    $locationVariation = new LocationVariation;
+                    $locationVariation->warehouselocation_id = $warehouselocation->id;
+                    $locationVariation->variation_id = $variation->id;
+                    $locationVariation->product_id = $variation->product_id;
+                    $locationVariation->user_id = $request->user()->id;
+                    $locationVariation->save();
+                }
             }
         }
 
@@ -331,7 +349,7 @@ class LocationVariationRepository extends BaseRepository
 
     public function removeItemFromLocation(Request $request)
     {
-        if (strlen($request->sku) > 7) {
+        if (strlen($request->sku) > 12) {
             $product = Product::where('internal_reference', $request->sku)->first();
             if (empty($product)) {
                 return ApiResponses::notFound('No se encontro el estilo.');
