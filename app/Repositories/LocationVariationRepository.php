@@ -216,7 +216,7 @@ class LocationVariationRepository extends BaseRepository
     {
         if (is_numeric($request->sku)) {
             $where = [];
-            if (strlen($request->sku) > 14) {
+            if (strlen($request->sku) > 12) {
                 $where = ['internal_reference' => $request->sku];
             } else {
                 $variation = Variation::where('sku', $request->sku)->first();
@@ -269,7 +269,7 @@ class LocationVariationRepository extends BaseRepository
             return ApiResponses::notFound('No se encontro la ubicacion destino.');
         }
 
-        if (strlen($request->sku) > 13) {
+        if (strlen($request->sku) > 12) {
             $product = Product::where('internal_reference', $request->sku)->first();
             if (empty($product)) {
                 return ApiResponses::notFound('No se encontro el estilo a ubicar.');
